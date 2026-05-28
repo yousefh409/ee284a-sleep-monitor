@@ -21,8 +21,6 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
             avg(temp_c) AS temp_c,
             avg(humidity) AS humidity,
             avg(db_spl) AS db_spl,
-            avg(eco2_ppm)::int AS eco2_ppm,
-            avg(tvoc_ppb)::int AS tvoc_ppb,
             avg(light_raw)::int AS light_raw
      FROM telemetry WHERE device = $1 AND ts BETWEEN $2 AND $3
      GROUP BY date_trunc('minute', ts) ORDER BY t`,

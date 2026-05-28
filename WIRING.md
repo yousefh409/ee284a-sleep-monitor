@@ -49,16 +49,6 @@ Analog output, ESP32 ADC1. Three pieces wired together on the breadboard.
 | 10 kΩ leg A | Junction row (shared with photoresistor and A3) |
 | 10 kΩ leg B | Breadboard **−** rail (GND) |
 
-## Status LED + 330 Ω
-
-Heartbeat indicator — blinks on each successful MQTT publish.
-
-| Part | Connects to |
-|---|---|
-| Feather **D13** | 330 Ω resistor leg A |
-| 330 Ω resistor leg B | LED **anode** (long leg) |
-| LED **cathode** (short leg) | Breadboard **−** rail (GND) |
-
 ## Feather V2 — pin usage summary
 
 Plug the Feather across the breadboard's center channel. The pins below are the ones we use; the rest stay unconnected.
@@ -74,4 +64,3 @@ Plug the Feather across the breadboard's center channel. The pins below are the 
 | RX | C1001 TX |
 | A2 | Mic DC |
 | A3 | Photoresistor / 10 kΩ junction |
-| D13 | LED via 330 Ω resistor |

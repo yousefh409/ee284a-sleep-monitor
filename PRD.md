@@ -24,9 +24,7 @@ USB-C wall ──> [Feather V2 ESP32] ──5V──> [C1001 mmWave]
                        │  3V3
                        ├──I2C──> [BME280]
                        ├──ADC──> [SPW2430 mic]  (raw audio computed on-device → dB SPL)
-                       ├──ADC──> [Photoresistor]
-                       ├──GPIO─> [Status LED]
-                       └──GPIO<─ [Push button]
+                       └──ADC──> [Photoresistor]
 
    Feather V2 ──Wi-Fi──> [MQTT broker] ──> [Cloud worker: correlator] ──> [Web dashboard]
 ```
@@ -38,8 +36,6 @@ Raw audio never leaves the device; the ESP32 computes RMS over a 1 s window and 
 - BME280 (I²C @ 0x76)
 - SPW2430 analog MEMS microphone
 - Photoresistor + 10 kΩ pull-down
-- Status LED + 330 Ω resistor
-- Push button
 - Full-size breadboard (165 × 55 mm) + jumper wires
 - 3D-printed enclosure + ball-joint mount (see PRINT-PLAN.md)
 - USB-C wall adapter

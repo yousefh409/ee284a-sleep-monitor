@@ -9,10 +9,8 @@
 [Feather V2 ESP32]
    ├── C1001 mmWave (UART2)
    ├── BME280       (I2C 0x76)
-   ├── SGP30        (I2C 0x58)
    ├── SPW2430 mic  (ADC1 A2)
-   ├── Photoresistor(ADC1 A3)
-   └── Status LED   (D13)
+   └── Photoresistor(ADC1 A3)
             │
             └── Wi-Fi/MQTT/TLS ──> [HiveMQ Cloud]
                                         │
@@ -36,10 +34,8 @@ Single Next.js app on Railway handles MQTT subscription, data storage, LLM analy
 |---|---|---|---|
 | DFRobot C1001 60GHz mmWave | UART @ 115200 | TX2/RX2 | Presence, sleep stages, breathing, heart rate |
 | BME280 | I2C @ 100kHz | 0x76 | Temperature, humidity, pressure |
-| SGP30 | I2C @ 100kHz | 0x58 | eCO2 (estimated) + TVOC |
 | SPW2430 MEMS mic | Analog | A2 (ADC1) | dB SPL (RMS computed on-device, raw audio never leaves) |
 | Photoresistor + 10 kΩ | Analog | A3 (ADC1) | Light level |
-| Status LED + 330 Ω | Digital | D13 | MQTT publish heartbeat |
 
 Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 
@@ -49,7 +45,6 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 
 **Libraries:**
 - `Adafruit_BME280`
-- `Adafruit_SGP30`
 - `DFRobot_HumanDetection` (C1001 driver)
 - `PubSubClient` (MQTT)
 - `ArduinoJson`
@@ -64,13 +59,10 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 | Sample mic, compute 1 s RMS, update running max dB SPL | continuous |
 | Read C1001 sleep composite (state, breathing, heart rate, presence) | 1 Hz |
 | Read BME280 (T/H/P) | 0.1 Hz (every 10 s) |
-| Read SGP30 (eCO2 + TVOC) | 1 Hz (datasheet requirement) |
 | Read photoresistor ADC | 0.1 Hz |
-| Publish JSON to MQTT, blink LED | every 10 s |
+| Publish JSON to MQTT | every 10 s |
 
-**SGP30 baselines:** persisted to NVS (Preferences), restored on boot to skip the 12 h initial calibration after the first power-on.
-
-**Connection recovery:** Wi-Fi disconnect triggers reconnect loop. MQTT disconnect triggers reconnect loop. LED gives a fast-blink during reconnect.
+**Connection recovery:** Wi-Fi disconnect triggers reconnect loop. MQTT disconnect triggers reconnect loop.
 
 ## 4. MQTT
 
@@ -100,8 +92,6 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
   "temp_c": 22.1,
   "humidity": 45.2,
   "pressure_hpa": 1013.2,
-  "eco2_ppm": 612,
-  "tvoc_ppb": 78,
   "db_spl": 32.5,
   "light_raw": 245
 }
@@ -122,8 +112,6 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 | `temp_c` | BME280 | °C | |
 | `humidity` | BME280 | % RH | |
 | `pressure_hpa` | BME280 | hPa | |
-| `eco2_ppm` | SGP30 | ppm | Estimated CO2 from H2 proxy |
-| `tvoc_ppb` | SGP30 | ppb | Total VOCs |
 | `db_spl` | SPW2430, RMS over 1 s | dB SPL approx | Max over last 10 s |
 | `light_raw` | Photoresistor | 0–4095 | ADC raw, calibrate to lux dashboard-side |
 
@@ -141,7 +129,7 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 
 | Table | Columns |
 |---|---|
-| `telemetry` | id, device, ts, presence, sleep_state, breathing, heart_rate, body_motion, temp_c, humidity, pressure_hpa, eco2_ppm, tvoc_ppb, db_spl, light_raw |
+| `telemetry` | id, device, ts, presence, in_bed, sleep_state, breathing, heart_rate, turnover, body_move_large, body_move_small, apnea_events, temp_c, humidity, pressure_hpa, db_spl, light_raw |
 | `nights` | id, device, started_at, ended_at, duration_sec, sleep_score |
 | `reports` | id, night_id, headline, sleep_score, stage_pct (jsonb), vitals (jsonb), wake_events (jsonb), recommendations (jsonb), generated_at |
 
@@ -174,7 +162,7 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 **Page structure (`app/page.tsx`):**
 
 1. **Top bar:** date picker dropdown (recent nights), connection status indicator (live), logout button.
-2. **Live panel** (when current night ongoing): last 10 minutes of breathing, heart rate, dB, temp, eCO2. Polls `/api/live` every 5 seconds.
+2. **Live panel** (when current night ongoing): last 10 minutes of breathing, heart rate, dB, temp. Polls `/api/live` every 5 seconds.
 3. **AI morning briefing card:**
    - Sleep score (big number) + headline
    - Stage breakdown (% awake / light / deep) + vitals (avg breathing, avg HR)
@@ -183,7 +171,7 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 4. **Charts (below briefing):**
    - Overnight sleep-stage band (Chart.js timeline)
    - Breathing + heart rate dual-line
-   - Environmental overlay (temp, humidity, dB, eCO2) with wake-event markers
+   - Environmental overlay (temp, humidity, dB, light) with wake-event markers
 5. **Footer:** link to PRD/repo.
 
 **Live refresh:** `setInterval(fetch, 5000)` polling the `/api/live` endpoint.
@@ -198,7 +186,6 @@ Wall-powered means no hard runtime constraint, but the firmware still implements
 | Wi-Fi modem-sleep | Modem off between MQTT publishes; wakes only to TX. Keep-alive set to 60 s. | ~50% of radio draw |
 | C1001 soft-stop on long absence | If `presence=0` for >30 minutes, send `stop` command over UART. Resume on next motion event. | ~100 mA → ~idle when room empty |
 | BME280 forced mode | One-shot reads instead of continuous; sleeps between reads. | ~99% of BME draw between samples |
-| SGP30 sample at 1 Hz (required) | Cannot duty-cycle (datasheet says continuous 1 Hz or recalibrate). | n/a, but kept honest |
 | Mic sampling burst | 1 s of 8 kHz ADC reads per 10 s, then ADC idle. | ~90% of ADC duty |
 
 **Measured baseline target:** ~80 mA average system current (vs ~150 mA naive always-on). Not battery-critical but documents good IoT design and gives the report something concrete to point at.
@@ -224,7 +211,7 @@ Wall-powered means no hard runtime constraint, but the firmware still implements
 ## 9. Demo plan
 
 **Live (1 min):**
-1. Power on the device. LED heartbeat starts.
+1. Power on the device. Connection state visible on the dashboard ("● streaming" indicator).
 2. Walk past it, sit on a chair in front of it. Dashboard live panel shows presence flipping to 1 and breathing rate appearing.
 3. Open the dashboard live panel on screen.
 
@@ -235,7 +222,7 @@ Wall-powered means no hard runtime constraint, but the firmware still implements
 4. Mention all 6 innovations as they appear visually.
 
 **Innovations recap (also on slides):**
-1. New sensor types not in prior labs: C1001 60GHz mmWave radar + SGP30 air-quality
+1. New sensor type not in prior labs: C1001 60GHz mmWave radar (presence + sleep stages + breathing + heart rate onboard)
 2. Multi-sensor correlation engine (radar wake events linked to env spikes ±60 s)
 3. AI-driven sleep coach (Claude API auto-generates morning briefing on wake)
 4. Custom consumer-facing dashboard

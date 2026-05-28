@@ -5,18 +5,15 @@
 #include <ArduinoJson.h>
 #include <Wire.h>
 #include <Adafruit_BME280.h>
-#include <Adafruit_SGP30.h>
 #include <DFRobot_HumanDetection.h>
 #include "config.h"
 
-constexpr uint8_t LED_PIN = 13;
 constexpr uint8_t MIC_PIN = A2;
 constexpr uint8_t LDR_PIN = A3;
 constexpr uint16_t MIC_SAMPLES = 1024;
 constexpr uint32_t MIC_RATE_HZ = 8000;
 
 Adafruit_BME280 bme;
-Adafruit_SGP30 sgp;
 DFRobot_HumanDetection radar(&Serial1);
 WiFiClientSecure net;
 PubSubClient mqtt(net);
@@ -48,11 +45,7 @@ float readDbBurst() {
 void wifiConnect() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
-  while (WiFi.status() != WL_CONNECTED) {
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-    delay(250);
-  }
-  digitalWrite(LED_PIN, LOW);
+  while (WiFi.status() != WL_CONNECTED) delay(250);
 }
 
 void mqttConnect() {
@@ -81,30 +74,20 @@ void publishTelemetry() {
   doc["temp_c"]         = bme.readTemperature();
   doc["humidity"]       = bme.readHumidity();
   doc["pressure_hpa"]   = bme.readPressure() / 100.0f;
-  if (sgp.IAQmeasure()) {
-    doc["eco2_ppm"]     = sgp.eCO2;
-    doc["tvoc_ppb"]     = sgp.TVOC;
-  }
   doc["db_spl"]         = db_max;
   doc["light_raw"]      = analogRead(LDR_PIN);
 
   char buf[512];
   size_t n = serializeJson(doc, buf);
-  if (mqtt.publish(MQTT_TOPIC, buf, n)) {
-    digitalWrite(LED_PIN, HIGH);
-    delay(50);
-    digitalWrite(LED_PIN, LOW);
-  }
+  mqtt.publish(MQTT_TOPIC, buf, n);
 }
 
 void setup() {
-  pinMode(LED_PIN, OUTPUT);
   Serial.begin(115200);
   Serial1.begin(115200);
 
   Wire.begin();
   if (!bme.begin(0x76, &Wire)) bme.begin(0x77, &Wire);
-  sgp.begin();
   radar.begin();
   radar.configWorkMode(DFRobot_HumanDetection::eSleepMode);
   radar.sensorRet();

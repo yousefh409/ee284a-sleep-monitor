@@ -1,13 +1,11 @@
-import { readFile } from "fs/promises";
-import { join } from "path";
 import { pool } from "./db";
+import { SCHEMA_SQL } from "./schema";
 
 let done = false;
 
 export async function migrate() {
   if (done) return;
   done = true;
-  const sql = await readFile(join(process.cwd(), "db/schema.sql"), "utf8");
-  await pool.query(sql);
+  await pool.query(SCHEMA_SQL);
   console.log("[migrate] schema applied");
 }

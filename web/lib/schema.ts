@@ -1,3 +1,4 @@
+export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS telemetry (
   id              BIGSERIAL PRIMARY KEY,
   device          TEXT NOT NULL,
@@ -44,3 +45,4 @@ CREATE TABLE IF NOT EXISTS reports (
 );
 
 CREATE INDEX IF NOT EXISTS reports_night_idx ON reports (night_id);
+`;

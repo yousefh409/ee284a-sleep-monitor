@@ -20,8 +20,6 @@ type LiveRow = {
   temp_c: number | null;
   humidity: number | null;
   db_spl: number | null;
-  eco2_ppm: number | null;
-  tvoc_ppb: number | null;
   light_raw: number | null;
 };
 
@@ -133,13 +131,12 @@ export default function Page() {
             </span>
           </div>
           {latest ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
               <Stat label="In bed" value={latest.in_bed ? "yes" : "no"} />
               <Stat label="Breathing" value={latest.breathing ?? "–"} unit="bpm" />
               <Stat label="Heart rate" value={latest.heart_rate ?? "–"} unit="bpm" />
               <Stat label="Temp" value={latest.temp_c?.toFixed(1) ?? "–"} unit="°C" />
               <Stat label="dB" value={latest.db_spl?.toFixed(0) ?? "–"} unit="dB" />
-              <Stat label="CO₂" value={latest.eco2_ppm ?? "–"} unit="ppm" />
             </div>
           ) : (
             <p className="text-sm text-stone-500">Waiting for the first message from the device.</p>
