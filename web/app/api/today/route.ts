@@ -12,8 +12,11 @@ export async function GET(request: Request) {
 
   const { rows: telemetry } = await pool.query(
     `WITH bounds AS (
-       SELECT date_trunc('day', now() AT TIME ZONE 'America/Los_Angeles')
-                AT TIME ZONE 'America/Los_Angeles' AS start_ts,
+       SELECT GREATEST(
+                date_trunc('day', now() AT TIME ZONE 'America/Los_Angeles')
+                  AT TIME ZONE 'America/Los_Angeles',
+                COALESCE((SELECT MAX(ended_at) FROM nights WHERE device = $1), 'epoch'::timestamptz)
+              ) AS start_ts,
               now() AS end_ts
      )
      SELECT extract(epoch FROM date_trunc('minute', t.ts))::int AS t,
