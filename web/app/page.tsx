@@ -156,6 +156,8 @@ function PageInner() {
   const apneaEvents = maxField(rows, "apnea_events");
   const lightSleepMin = maxField(rows, "light_sleep_dur");
   const deepSleepMin = maxField(rows, "deep_sleep_dur");
+  const sleepTimeMin = maxField(rows, "sleep_time_min");
+  const wakeDurMin = maxField(rows, "wake_dur");
   const durationSec = detail?.night.duration_sec ?? null;
 
   // Charts expect rows with `ts` ISO timestamps and the relevant fields — both endpoints return that shape.
@@ -196,7 +198,8 @@ function PageInner() {
         <StatsRow
           stagePct={slot.inProgress ? null : (detail?.night.stage_pct ?? null)}
           vitals={slot.inProgress ? null : (detail?.night.vitals ?? null)}
-          durationSec={durationSec}
+          sleepTimeMin={sleepTimeMin}
+          wakeDurMin={wakeDurMin}
           sensorScore={sensorScore}
           sleepQuality={sleepQuality}
           turnover={turnover}

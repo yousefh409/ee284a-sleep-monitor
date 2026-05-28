@@ -4,14 +4,15 @@ type Vitals = { avg_breathing: number; avg_heart_rate: number };
 type Props = {
   stagePct: StagePct | null;
   vitals: Vitals | null;
-  // New: derived/aggregated stats. All optional; render "—" when null.
-  durationSec: number | null;          // total night duration
-  sensorScore: number | null;          // max sensor sleep_score (vs AI report_score)
-  sleepQuality: number | null;         // sensor's quality field (last/max)
-  turnover: number | null;             // max turnover (count)
-  apneaEvents: number | null;          // max apnea_events count
-  lightSleepMin: number | null;        // sensor light_sleep_dur (max, minutes)
-  deepSleepMin: number | null;         // sensor deep_sleep_dur (max, minutes)
+  // Sensor-derived totals (preferred for time stats — match the per-stage breakdown)
+  sleepTimeMin: number | null;      // sensor: total sleep minutes (light + deep)
+  wakeDurMin: number | null;        // sensor: minutes awake in bed
+  sensorScore: number | null;       // sensor's sleep_score (max value across session)
+  sleepQuality: number | null;      // sensor's sleep_quality (last value)
+  turnover: number | null;          // turnover_total (max)
+  apneaEvents: number | null;       // apnea_events (max)
+  lightSleepMin: number | null;     // sensor: light_sleep_dur (max)
+  deepSleepMin: number | null;      // sensor: deep_sleep_dur (max)
 };
 
 function Stat({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
@@ -38,17 +39,8 @@ function fmt(n: number | null | undefined): string {
 }
 
 export function StatsRow({
-  stagePct, vitals, durationSec, sensorScore, sleepQuality, turnover, apneaEvents, lightSleepMin, deepSleepMin,
+  stagePct, vitals, sleepTimeMin, wakeDurMin, sensorScore, sleepQuality, turnover, apneaEvents, lightSleepMin, deepSleepMin,
 }: Props) {
-  // Derived: time sleeping and time awake in bed (minutes)
-  const totalMin = durationSec ? Math.round(durationSec / 60) : null;
-  const sleepingMin = (stagePct && totalMin !== null)
-    ? Math.round(((stagePct.light + stagePct.deep) / 100) * totalMin)
-    : null;
-  const awakeInBedMin = (stagePct && totalMin !== null)
-    ? Math.round((stagePct.awake / 100) * totalMin)
-    : null;
-
   return (
     <section className="space-y-6 border-t border-rule pt-6">
       <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-5">
@@ -59,8 +51,8 @@ export function StatsRow({
         <Stat label="Avg hr" value={fmt(vitals?.avg_heart_rate)} unit="bpm" />
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
-        <Stat label="Time sleeping" value={fmtMin(sleepingMin)} />
-        <Stat label="Awake in bed" value={fmtMin(awakeInBedMin)} />
+        <Stat label="Time sleeping" value={fmtMin(sleepTimeMin)} />
+        <Stat label="Awake in bed" value={fmtMin(wakeDurMin)} />
         <Stat label="Light sleep" value={fmtMin(lightSleepMin)} />
         <Stat label="Deep sleep" value={fmtMin(deepSleepMin)} />
         <Stat label="Turnover" value={fmt(turnover)} />
