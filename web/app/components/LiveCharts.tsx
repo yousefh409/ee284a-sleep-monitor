@@ -159,7 +159,7 @@ export function VitalsChart({ rows }: { rows: ChartRow[] }) {
   const options = useMemo(() => baseOptions({
     scales: {
       x: xAxis(),
-      y: yAxis({ suggestedMin: 0, suggestedMax: 30 }),
+      y: { ...yAxis({ suggestedMin: 0, suggestedMax: 30 }), min: 0, max: 120 },
     },
   }), []);
 
@@ -217,23 +217,21 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
     }],
   }), [rows]);
 
-  const sparkOptions = useMemo(() => baseOptions({
+  const baseSpark = (yScale: Record<string, unknown>) => baseOptions({
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: GROUND_RAISED,
-        borderColor: RULE,
-        borderWidth: 1,
-        titleColor: INK,
-        bodyColor: INK_MUTED,
-        padding: 10,
+        backgroundColor: GROUND_RAISED, borderColor: RULE, borderWidth: 1,
+        titleColor: INK, bodyColor: INK_MUTED, padding: 10,
       },
     },
-    scales: {
-      x: xAxis(),
-      y: yAxis(),
-    },
-  }), []);
+    scales: { x: xAxis(), y: yScale },
+  });
+
+  const tempOptions = useMemo(() => baseSpark({ ...yAxis({ position: "left" }), min: 15, max: 30 }), []);
+  const humOptions = useMemo(() => baseSpark({ ...yAxis({ position: "left" }), min: 0, max: 100 }), []);
+  const presOptions = useMemo(() => baseSpark({ ...yAxis({ position: "left" }), min: 990, max: 1030 }), []);
+  const gasOptions = useMemo(() => baseSpark({ ...yAxis({ position: "left" }) }), []);
 
   return (
     <section className="space-y-3">
@@ -244,19 +242,19 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">temp °C</p>
-          <div className="h-32"><Line data={tempData} options={sparkOptions} /></div>
+          <div className="h-32"><Line data={tempData} options={tempOptions} /></div>
         </div>
         <div>
           <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">humidity %</p>
-          <div className="h-32"><Line data={humData} options={sparkOptions} /></div>
+          <div className="h-32"><Line data={humData} options={humOptions} /></div>
         </div>
         <div>
           <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">pressure hPa</p>
-          <div className="h-32"><Line data={presData} options={sparkOptions} /></div>
+          <div className="h-32"><Line data={presData} options={presOptions} /></div>
         </div>
         <div>
           <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">gas Ω</p>
-          <div className="h-32"><Line data={gasData} options={sparkOptions} /></div>
+          <div className="h-32"><Line data={gasData} options={gasOptions} /></div>
         </div>
       </div>
     </section>
