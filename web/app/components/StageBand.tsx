@@ -1,4 +1,4 @@
-type Row = { sleep_state: number | null };
+type Row = { sleep_state: number | null; ts: string };
 
 type Props = { rows: Row[] };
 
@@ -16,6 +16,13 @@ function fill(state: number | null | undefined): string {
 
 export function StageBand({ rows }: Props) {
   if (rows.length === 0) return null;
+  const N = 5;
+  const markers = Array.from({ length: N }, (_, i) => {
+    const idx = Math.min(rows.length - 1, Math.round((i * (rows.length - 1)) / (N - 1)));
+    return new Date(rows[idx].ts).toLocaleTimeString("en-US", {
+      hour: "numeric", minute: "2-digit", hour12: true,
+    });
+  });
   return (
     <section className="space-y-2">
       <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">Sleep stages</h2>
@@ -23,6 +30,9 @@ export function StageBand({ rows }: Props) {
         {rows.map((r, i) => (
           <div key={i} style={{ flex: 1, background: fill(r.sleep_state) }} />
         ))}
+      </div>
+      <div className="flex justify-between text-[10px] font-mono text-ink-muted">
+        {markers.map((m, i) => <span key={i}>{m}</span>)}
       </div>
       <div className="flex gap-4 text-[11px] text-ink-muted">
         <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm" style={{ background: "var(--stage-out)" }} />out</span>
