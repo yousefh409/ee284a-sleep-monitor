@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { VitalsChart, EnvironmentChart, AudioLightChart } from "./components/LiveCharts";
+import { TelemetryTable } from "./components/TelemetryTable";
 
 type NightRow = {
   id: number;
@@ -12,6 +14,7 @@ type NightRow = {
 
 type LiveRow = {
   t: number;
+  ts: string;
   presence: number | null;
   in_bed: number | null;
   sleep_state: number | null;
@@ -209,6 +212,11 @@ export default function Page() {
             </div>
           </section>
         )}
+
+        <VitalsChart rows={live} />
+        <EnvironmentChart rows={live} />
+        <AudioLightChart rows={live} />
+        <TelemetryTable rows={live} />
       </div>
     </main>
   );
