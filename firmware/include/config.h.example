@@ -1,0 +1,15 @@
+#pragma once
+
+#define WIFI_SSID       "your-ssid"
+#define WIFI_PASS       "your-password"
+
+#define MQTT_HOST       "xxxxxxxxxxxxxxxx.s2.eu.hivemq.cloud"
+#define MQTT_PORT       8883
+#define MQTT_USER       "your-hivemq-user"
+#define MQTT_PASS       "your-hivemq-pass"
+
+#define MQTT_TOPIC      "yousef/sleep01/telemetry"
+#define DEVICE_ID       "sleep01"
+
+#define PUBLISH_INTERVAL_MS 10000
+#define MIC_CALIBRATION_DB  30.0
