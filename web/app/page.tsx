@@ -169,6 +169,23 @@ function PageInner() {
   const sleepTimeMin = (lightSleepMin ?? 0) + (deepSleepMin ?? 0) || null;
   const wakeDurMin = maxField(inNightRows, "wake_dur");
 
+  // Real asleep/awake times: first/last per-minute row classified as sleep (deep=0 or light=1).
+  // Falls back to the session in-bed start/end if no sleep rows exist.
+  let asleepTs: string | null = detail?.night.started_at ?? null;
+  let awakeTs: string | null = detail?.night.ended_at ?? null;
+  if (!slot.inProgress && inNightRows.length > 0) {
+    const isSleep = (s: unknown) => s === 0 || s === 1;
+    for (const r of inNightRows) {
+      if (isSleep(r.sleep_state)) { asleepTs = r.ts as string; break; }
+    }
+    for (let i = inNightRows.length - 1; i >= 0; i--) {
+      if (isSleep(inNightRows[i].sleep_state)) { awakeTs = inNightRows[i].ts as string; break; }
+    }
+  }
+  const totalSec = (asleepTs && awakeTs)
+    ? Math.max(0, Math.floor((new Date(awakeTs).getTime() - new Date(asleepTs).getTime()) / 1000))
+    : (detail?.night.duration_sec ?? null);
+
   // Charts expect rows with `ts` ISO timestamps and the relevant fields — both endpoints return that shape.
   const chartRows = rows;
 
@@ -199,9 +216,9 @@ function PageInner() {
           score={slot.inProgress ? null : (detail?.night.report_score ?? slot.score)}
           headline={slot.inProgress ? null : (detail?.night.headline ?? null)}
           inProgress={slot.inProgress}
-          startedAt={slot.inProgress ? null : (detail?.night.started_at ?? null)}
-          endedAt={slot.inProgress ? null : (detail?.night.ended_at ?? null)}
-          durationSec={slot.inProgress ? null : (detail?.night.duration_sec ?? null)}
+          startedAt={slot.inProgress ? null : asleepTs}
+          endedAt={slot.inProgress ? null : awakeTs}
+          durationSec={slot.inProgress ? null : totalSec}
         />
 
         <StatsRow
