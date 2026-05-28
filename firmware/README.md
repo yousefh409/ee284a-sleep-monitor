@@ -30,6 +30,8 @@ pip install pyserial          # one-time
 python3 serial_monitor.py     # auto-detects the port and pretty-prints
 ```
 
-The `serial_monitor.py` script clears the terminal and re-renders the current sensor reading each second — easy to watch values change as you move/breathe in front of the C1001, cover the photoresistor, blow on the BME280, etc.
+The `serial_monitor.py` script clears the terminal and re-renders the current sensor reading each second — easy to watch values change as you move/breathe in front of the C1001, cover the photoresistor, blow on the BME680, etc.
+
+**Note:** the C1001 library has two hardcoded `delay(10000)` calls in its init + reset, so the first JSON line takes ~22 s after boot. Once running, JSON arrives every second.
 
 See [../TECH-SPEC.md](../TECH-SPEC.md) for the full JSON schema.

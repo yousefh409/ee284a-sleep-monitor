@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
-#include <Adafruit_BME280.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME680.h>
 #include <DFRobot_HumanDetection.h>
 
 constexpr uint8_t MIC_PIN = A2;
@@ -10,9 +11,8 @@ constexpr uint16_t MIC_SAMPLES = 1024;
 constexpr uint32_t MIC_RATE_HZ = 8000;
 constexpr float MIC_CALIBRATION_DB = 30.0f;
 
-Adafruit_BME280 bme;
+Adafruit_BME680 bme;
 DFRobot_HumanDetection radar(&Serial1);
-
 bool bme_ok = false;
 bool radar_ok = false;
 
@@ -37,90 +37,36 @@ float readDbBurst() {
   return 20.0f * log10f(rms) + MIC_CALIBRATION_DB;
 }
 
-void scanI2C() {
-  Serial.print("i2c scan:");
-  Serial.flush();
-  byte count = 0;
-  for (byte a = 1; a < 127; a++) {
-    Wire.beginTransmission(a);
-    if (Wire.endTransmission() == 0) {
-      Serial.print(" 0x");
-      Serial.print(a, HEX);
-      Serial.flush();
-      count++;
-    }
-  }
-  if (count == 0) Serial.print(" (none)");
-  Serial.println();
-  Serial.flush();
-}
-
 void setup() {
   Serial.begin(115200);
-  delay(1000);
-  Serial.println();
-  Serial.println("=== sensor_test boot ===");
-
+  delay(500);
   Wire.begin();
-  scanI2C();
-  bme_ok = bme.begin(0x76, &Wire) || bme.begin(0x77, &Wire);
-  Serial.print("bme280: ");
-  Serial.println(bme_ok ? "ok" : "FAIL");
-
-  delay(200);
-  Serial.print("radar begin...");
-  Serial.flush();
-  Serial1.begin(115200);
-  uint32_t t = millis();
-  uint8_t r = 1;
-  while (r != 0 && millis() - t < 3000) {
-    r = radar.begin();
+  bme_ok = bme.begin();
+  Serial.println(bme_ok ? "BME680 ok" : "BME680 not found");
+  if (bme_ok) {
+    bme.setTemperatureOversampling(BME680_OS_8X);
+    bme.setHumidityOversampling(BME680_OS_2X);
+    bme.setPressureOversampling(BME680_OS_4X);
+    bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
+    bme.setGasHeater(320, 150);
   }
-  radar_ok = (r == 0);
-  Serial.println(radar_ok ? " ok" : " FAIL (no response in 3s)");
 
+  Serial.println("Starting C1001 (10s warm-up)...");
+  Serial1.begin(115200);
+  radar_ok = (radar.begin() == 0);
+  Serial.println(radar_ok ? "C1001 ok" : "C1001 not found");
   if (radar_ok) {
-    delay(200);
-    Serial.print("radar sleep mode...");
     radar.configWorkMode(DFRobot_HumanDetection::eSleepMode);
     radar.sensorRet();
-    Serial.println(" set");
   }
 
   analogReadResolution(12);
-  Serial.println("=== streaming JSON each second ===");
 }
 
 void loop() {
-  static uint32_t iter = 0;
-  iter++;
-
-  // every 5s, retry sensor init and re-scan I2C — surfaces wiring fixes live
-  if (iter % 5 == 0) {
-    Serial.print("[diag] i2c rescan:");
-    Serial.flush();
-    for (byte a = 1; a < 127; a++) {
-      Wire.beginTransmission(a);
-      if (Wire.endTransmission() == 0) {
-        Serial.print(" 0x"); Serial.print(a, HEX); Serial.flush();
-      }
-    }
-    Serial.println();
-    Serial.flush();
-    if (!bme_ok) {
-      bme_ok = bme.begin(0x76, &Wire) || bme.begin(0x77, &Wire);
-      Serial.print("[diag] bme retry: "); Serial.println(bme_ok ? "ok" : "still missing"); Serial.flush();
-    }
-    if (!radar_ok) {
-      radar_ok = (radar.begin() == 0);
-      if (radar_ok) { radar.configWorkMode(DFRobot_HumanDetection::eSleepMode); radar.sensorRet(); }
-      Serial.print("[diag] radar retry: "); Serial.println(radar_ok ? "ok" : "still missing"); Serial.flush();
-    }
-  }
-
   JsonDocument doc;
-  doc["t"]              = (uint32_t)(millis() / 1000);
-  doc["dev"]            = "sleep01-test";
+  doc["t"]   = (uint32_t)(millis() / 1000);
+  doc["dev"] = "sleep01-test";
 
   if (radar_ok) {
     sSleepComposite c = radar.getSleepComposite();
@@ -137,10 +83,11 @@ void loop() {
     doc["radar"] = "missing";
   }
 
-  if (bme_ok) {
-    doc["temp_c"]       = bme.readTemperature();
-    doc["humidity"]     = bme.readHumidity();
-    doc["pressure_hpa"] = bme.readPressure() / 100.0f;
+  if (bme_ok && bme.performReading()) {
+    doc["temp_c"]       = bme.temperature;
+    doc["humidity"]     = bme.humidity;
+    doc["pressure_hpa"] = bme.pressure / 100.0f;
+    doc["gas_ohm"]      = bme.gas_resistance;
   } else {
     doc["bme"] = "missing";
   }

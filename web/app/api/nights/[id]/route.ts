@@ -20,6 +20,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
             avg(heart_rate)::int AS heart_rate,
             avg(temp_c) AS temp_c,
             avg(humidity) AS humidity,
+            avg(gas_ohm)::int AS gas_ohm,
             avg(db_spl) AS db_spl,
             avg(light_raw)::int AS light_raw
      FROM telemetry WHERE device = $1 AND ts BETWEEN $2 AND $3

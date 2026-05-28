@@ -8,7 +8,7 @@
 ```
 [Feather V2 ESP32]
    ├── C1001 mmWave (UART2)
-   ├── BME280       (I2C 0x76)
+   ├── BME680       (I2C 0x76)
    ├── SPW2430 mic  (ADC1 A2)
    └── Photoresistor(ADC1 A3)
             │
@@ -33,7 +33,7 @@ Single Next.js app on Railway handles MQTT subscription, data storage, LLM analy
 | Sensor | Interface | Pin/Addr | Purpose |
 |---|---|---|---|
 | DFRobot C1001 60GHz mmWave | UART @ 115200 | TX2/RX2 | Presence, sleep stages, breathing, heart rate |
-| BME280 | I2C @ 100kHz | 0x76 | Temperature, humidity, pressure |
+| BME680 | I2C @ 100kHz | 0x77 (default) | Temperature, humidity, pressure, gas/VOC resistance |
 | SPW2430 MEMS mic | Analog | A2 (ADC1) | dB SPL (RMS computed on-device, raw audio never leaves) |
 | Photoresistor + 10 kΩ | Analog | A3 (ADC1) | Light level |
 
@@ -44,7 +44,7 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 **Platform:** PlatformIO, Arduino framework, `adafruit_feather_esp32_v2` board.
 
 **Libraries:**
-- `Adafruit_BME280`
+- `Adafruit_BME680` (+ `Adafruit_Sensor`)
 - `DFRobot_HumanDetection` (C1001 driver)
 - `PubSubClient` (MQTT)
 - `ArduinoJson`
@@ -58,7 +58,7 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 |---|---|
 | Sample mic, compute 1 s RMS, update running max dB SPL | continuous |
 | Read C1001 sleep composite (state, breathing, heart rate, presence) | 1 Hz |
-| Read BME280 (T/H/P) | 0.1 Hz (every 10 s) |
+| Read BME680 (T/H/P/gas) | 0.1 Hz (every 10 s); gas heater is 320 °C / 150 ms |
 | Read photoresistor ADC | 0.1 Hz |
 | Publish JSON to MQTT | every 10 s |
 
@@ -92,6 +92,7 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
   "temp_c": 22.1,
   "humidity": 45.2,
   "pressure_hpa": 1013.2,
+  "gas_ohm": 5684,
   "db_spl": 32.5,
   "light_raw": 245
 }
@@ -109,9 +110,10 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 | `body_move_large` | C1001 composite `largeBodyMove` | % | Recent window large-motion fraction |
 | `body_move_small` | C1001 composite `minorBodyMove` | % | Recent window small-motion fraction |
 | `apnea_events` | C1001 composite `apneaEvents` | count | Cumulative for current session |
-| `temp_c` | BME280 | °C | |
-| `humidity` | BME280 | % RH | |
-| `pressure_hpa` | BME280 | hPa | |
+| `temp_c` | BME680 | °C | |
+| `humidity` | BME680 | % RH | |
+| `pressure_hpa` | BME680 | hPa | |
+| `gas_ohm` | BME680 | Ω | Gas/VOC sensor resistance; lower = more VOCs/contaminants |
 | `db_spl` | SPW2430, RMS over 1 s | dB SPL approx | Max over last 10 s |
 | `light_raw` | Photoresistor | 0–4095 | ADC raw, calibrate to lux dashboard-side |
 
@@ -129,7 +131,7 @@ Full wiring details in [CIRCUIT.md](CIRCUIT.md).
 
 | Table | Columns |
 |---|---|
-| `telemetry` | id, device, ts, presence, in_bed, sleep_state, breathing, heart_rate, turnover, body_move_large, body_move_small, apnea_events, temp_c, humidity, pressure_hpa, db_spl, light_raw |
+| `telemetry` | id, device, ts, presence, in_bed, sleep_state, breathing, heart_rate, turnover, body_move_large, body_move_small, apnea_events, temp_c, humidity, pressure_hpa, gas_ohm, db_spl, light_raw |
 | `nights` | id, device, started_at, ended_at, duration_sec, sleep_score |
 | `reports` | id, night_id, headline, sleep_score, stage_pct (jsonb), vitals (jsonb), wake_events (jsonb), recommendations (jsonb), generated_at |
 
@@ -185,7 +187,7 @@ Wall-powered means no hard runtime constraint, but the firmware still implements
 | ESP32 light-sleep between samples | Between sensor reads, MCU drops to ~3 mA. Wakes on RTC timer for next sample. | ~70% of MCU draw |
 | Wi-Fi modem-sleep | Modem off between MQTT publishes; wakes only to TX. Keep-alive set to 60 s. | ~50% of radio draw |
 | C1001 soft-stop on long absence | If `presence=0` for >30 minutes, send `stop` command over UART. Resume on next motion event. | ~100 mA → ~idle when room empty |
-| BME280 forced mode | One-shot reads instead of continuous; sleeps between reads. | ~99% of BME draw between samples |
+| BME680 forced mode | One-shot reads instead of continuous; sleeps between reads. | ~99% of BME draw between samples |
 | Mic sampling burst | 1 s of 8 kHz ADC reads per 10 s, then ADC idle. | ~90% of ADC duty |
 
 **Measured baseline target:** ~80 mA average system current (vs ~150 mA naive always-on). Not battery-critical but documents good IoT design and gives the report something concrete to point at.

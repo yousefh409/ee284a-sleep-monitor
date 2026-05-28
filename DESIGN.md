@@ -11,9 +11,9 @@ Wall-adhered housing with the C1001 mounted on the front via the ball-joint chai
 ```
 USB-C wall ──> Feather V2 USB-C port
                 Feather USB pin ──> C1001 (5V, GND)
-                Feather 3V3 pin ──> BME280, mic, LDR
+                Feather 3V3 pin ──> BME680, mic, LDR
                 Feather TX/RX  ──> C1001 UART
-                Feather SDA/SCL ──> BME280
+                Feather SDA/SCL ──> BME680
                 Feather A2 ──> SPW2430 mic (analog)
                 Feather A3 ──> Photoresistor + 10kΩ pull-down
 ```
@@ -25,7 +25,7 @@ No battery, no PMIC, no boost — Feather V2 directly powers everything from the
 | Function | Pin | Notes |
 |---|---|---|
 | C1001 UART | TX / RX (Serial1) | 115200 baud; keeps USB serial free for debug |
-| BME280 | SDA / SCL | I²C @ 0x76 (or 0x77 — firmware auto-detects) |
+| BME680 | SDA / SCL | I²C @ 0x77 (default, CS/SDO floating) — temp / humidity / pressure / gas |
 | SPW2430 mic | A2 (ADC1) | Analog audio → onboard RMS → dB SPL |
 | Photoresistor | A3 (ADC1) | With 10 kΩ pull-down |
 | 5 V to C1001 | USB pin | Passthrough from USB-C wall power |

@@ -1,7 +1,7 @@
 # WIRING
 
 **Project:** Contactless Sleep & Environment Monitor
-**Companion to:** [TECH-SPEC.md](TECH-SPEC.md) · [CIRCUIT.md](CIRCUIT.md)
+**Companion to:** [TECH-SPEC.md](TECH-SPEC.md)
 
 One card per part. Every pin listed.
 
@@ -16,20 +16,18 @@ One card per part. Every pin listed.
 | TX | Feather **RX** pin |
 | RX | Feather **TX** pin |
 
-## BME280 (temp / humidity / pressure)
+## BME680 (temp / humidity / pressure / gas)
 
-3.3 V power · I²C @ address `0x76` · firmware auto-detects 0x76 / 0x77.
+3.3 V power · I²C @ default address `0x77`. Adafruit-style breakout: leave **CS and SDO unconnected** (internal pull-ups keep it in I²C mode at the default address).
 
-Your breakout uses the SPI-style pin labels (SDO / SCK / SDI / CS). The BME280 chip supports **both** I²C and SPI; we use I²C by holding **CS high** and selecting the address with **SDO**.
-
-| BME280 pin | Connects to | Why |
-|---|---|---|
-| VIN (or VCC) | Breadboard **+** rail (3 V3) | power |
-| GND | Breadboard **−** rail (GND) | ground |
-| SCK | Feather **SCL** | I²C clock (SPI uses the same line) |
-| SDI | Feather **SDA** | I²C data (SPI MOSI uses the same line) |
-| SDO | Breadboard **−** rail (GND) | pulls I²C address to **0x76**. Tie to 3 V3 for 0x77 instead — firmware tries both. |
-| CS | Breadboard **+** rail (3 V3) | **CS high → I²C mode**. (CS low = SPI mode, which we don't want.) |
+| BME680 pin | Connects to |
+|---|---|
+| VIN (or VCC) | Breadboard **+** rail (3 V3) |
+| GND | Breadboard **−** rail (GND) |
+| SCK | Feather **SCL** |
+| SDI | Feather **SDA** |
+| SDO | (leave unconnected) |
+| CS | (leave unconnected) |
 
 ## SPW2430 (analog MEMS microphone)
 
@@ -41,17 +39,17 @@ Your breakout uses the SPI-style pin labels (SDO / SCK / SDI / CS). The BME280 c
 | GND | Breadboard **−** rail (GND) |
 | DC | Feather **A2** (ADC1) |
 
-## Photoresistor + 3 kΩ (two 1.5 kΩ in series) (voltage divider)
+## Photoresistor + 3 kΩ (voltage divider)
 
-Analog output, ESP32 ADC1. Three pieces wired together on the breadboard.
+Analog output, ESP32 ADC1. Three pieces wired together on the breadboard. The 3 kΩ is two 1.5 kΩ resistors in series.
 
 | Divider piece | Connects to |
 |---|---|
 | Photoresistor leg A | Breadboard **+** rail (3 V3) |
-| Photoresistor leg B | Junction row (shared with 3 kΩ (two 1.5 kΩ in series) and A3) |
+| Photoresistor leg B | Junction row (shared with 3 kΩ and A3) |
 | Junction row | Feather **A3** (ADC1) |
-| 3 kΩ (two 1.5 kΩ in series) leg A | Junction row (shared with photoresistor and A3) |
-| 3 kΩ (two 1.5 kΩ in series) leg B | Breadboard **−** rail (GND) |
+| 3 kΩ leg A | Junction row (shared with photoresistor and A3) |
+| 3 kΩ leg B | Breadboard **−** rail (GND) |
 
 ## Feather V2 — pin usage summary
 
@@ -60,11 +58,11 @@ Plug the Feather across the breadboard's center channel. The pins below are the 
 | Feather pin | Connects to |
 |---|---|
 | USB | C1001 VIN (the only 5 V load) |
-| 3V3 | Breadboard **+** rail (drives BME280, mic, LDR top) |
+| 3V3 | Breadboard **+** rail (drives BME680, mic, LDR top) |
 | GND | Breadboard **−** rail (shared ground for everything) |
-| SDA | BME280 SDI |
-| SCL | BME280 SCK |
+| SDA | BME680 SDI |
+| SCL | BME680 SCK |
 | TX | C1001 RX |
 | RX | C1001 TX |
 | A2 | Mic DC |
-| A3 | Photoresistor / 3 kΩ (two 1.5 kΩ in series) junction |
+| A3 | Photoresistor / 3 kΩ junction |

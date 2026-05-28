@@ -15,9 +15,12 @@ CREATE TABLE IF NOT EXISTS telemetry (
   temp_c          REAL,
   humidity        REAL,
   pressure_hpa    REAL,
+  gas_ohm         INT,
   db_spl          REAL,
   light_raw       INT
 );
+
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS gas_ohm INT;
 
 CREATE INDEX IF NOT EXISTS telemetry_device_ts_idx ON telemetry (device, ts DESC);
 

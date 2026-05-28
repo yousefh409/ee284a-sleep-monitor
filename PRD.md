@@ -9,12 +9,12 @@ A third of adults sleep poorly, but consumer sleep trackers require nightly wear
 Sleep-conscious adults who want passive, no-wearable tracking that explains disruptions in the morning.
 
 ## Solution
-A bedside IoT node combining a 60 GHz mmWave radar (presence + sleep stages + breathing/heart rate) with environmental sensors (temperature, humidity, noise, light). USB-C wall powered. Publishes per-minute telemetry over Wi-Fi/MQTT. A cloud-side correlation engine annotates each wake event with its most likely environmental cause, surfaced on a morning dashboard.
+A bedside IoT node combining a 60 GHz mmWave radar (presence + sleep stages + breathing/heart rate) with environmental sensors (temperature, humidity, pressure, air quality, noise, light). USB-C wall powered. Publishes per-minute telemetry over Wi-Fi/MQTT. A cloud-side correlation engine annotates each wake event with its most likely environmental cause, surfaced on a morning dashboard.
 
 ## Key Features
 - Contactless sleep-stage tracking (awake / light / deep) without wearables
 - Live breathing rate and heart rate while in bed (chest distance 0.4–2.5 m)
-- Per-minute environmental log: temperature, humidity, pressure, dB SPL, light level
+- Per-minute environmental log: temperature, humidity, pressure, gas/VOC air quality, dB SPL, light level
 - Annotated wake events: each arousal tagged with likely cause (noise / temp drift / light)
 - Morning dashboard: overnight timeline + sleep score + correlated environment overlay
 
@@ -22,7 +22,7 @@ A bedside IoT node combining a 60 GHz mmWave radar (presence + sleep stages + br
 ```
 USB-C wall ──> [Feather V2 ESP32] ──5V──> [C1001 mmWave]
                        │  3V3
-                       ├──I2C──> [BME280]
+                       ├──I2C──> [BME680]
                        ├──ADC──> [SPW2430 mic]  (raw audio computed on-device → dB SPL)
                        └──ADC──> [Photoresistor]
 
@@ -33,7 +33,7 @@ Raw audio never leaves the device; the ESP32 computes RMS over a 1 s window and 
 ## Bill of Materials (single node)
 - Adafruit ESP32 Feather V2
 - DFRobot C1001 60 GHz mmWave radar (5 V, UART)
-- BME280 (I²C @ 0x76)
+- BME680 (I²C @ 0x76)
 - SPW2430 analog MEMS microphone
 - Photoresistor + 10 kΩ pull-down
 - Full-size breadboard (165 × 55 mm) + jumper wires

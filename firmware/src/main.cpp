@@ -4,7 +4,8 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
-#include <Adafruit_BME280.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME680.h>
 #include <DFRobot_HumanDetection.h>
 #include "config.h"
 
@@ -13,7 +14,7 @@ constexpr uint8_t LDR_PIN = A3;
 constexpr uint16_t MIC_SAMPLES = 1024;
 constexpr uint32_t MIC_RATE_HZ = 8000;
 
-Adafruit_BME280 bme;
+Adafruit_BME680 bme;
 DFRobot_HumanDetection radar(&Serial1);
 WiFiClientSecure net;
 PubSubClient mqtt(net);
@@ -71,9 +72,12 @@ void publishTelemetry() {
   doc["body_move_large"] = c.largeBodyMove;
   doc["body_move_small"] = c.minorBodyMove;
   doc["apnea_events"]   = c.apneaEvents;
-  doc["temp_c"]         = bme.readTemperature();
-  doc["humidity"]       = bme.readHumidity();
-  doc["pressure_hpa"]   = bme.readPressure() / 100.0f;
+  if (bme.performReading()) {
+    doc["temp_c"]       = bme.temperature;
+    doc["humidity"]     = bme.humidity;
+    doc["pressure_hpa"] = bme.pressure / 100.0f;
+    doc["gas_ohm"]      = bme.gas_resistance;
+  }
   doc["db_spl"]         = db_max;
   doc["light_raw"]      = analogRead(LDR_PIN);
 
@@ -87,7 +91,13 @@ void setup() {
   Serial1.begin(115200);
 
   Wire.begin();
-  if (!bme.begin(0x76, &Wire)) bme.begin(0x77, &Wire);
+  bme.begin();
+  bme.setTemperatureOversampling(BME680_OS_8X);
+  bme.setHumidityOversampling(BME680_OS_2X);
+  bme.setPressureOversampling(BME680_OS_4X);
+  bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  bme.setGasHeater(320, 150);
+
   radar.begin();
   radar.configWorkMode(DFRobot_HumanDetection::eSleepMode);
   radar.sensorRet();

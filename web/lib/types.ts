@@ -13,6 +13,7 @@ export type Telemetry = {
   temp_c?: number;
   humidity?: number;
   pressure_hpa?: number;
+  gas_ohm?: number;
   db_spl?: number;
   light_raw?: number;
 };

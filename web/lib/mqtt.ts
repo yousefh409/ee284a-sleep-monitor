@@ -30,11 +30,11 @@ async function insertTelemetry(t: Telemetry) {
   await pool.query(
     `INSERT INTO telemetry (device, ts, presence, in_bed, sleep_state, breathing, heart_rate,
        turnover, body_move_large, body_move_small, apnea_events, temp_c, humidity, pressure_hpa,
-       db_spl, light_raw)
-     VALUES ($1, to_timestamp($2), $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`,
+       gas_ohm, db_spl, light_raw)
+     VALUES ($1, to_timestamp($2), $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
     [t.dev, t.t, t.presence, t.in_bed, t.sleep_state, t.breathing, t.heart_rate,
      t.turnover, t.body_move_large, t.body_move_small, t.apnea_events, t.temp_c, t.humidity,
-     t.pressure_hpa, t.db_spl, t.light_raw]
+     t.pressure_hpa, t.gas_ohm, t.db_spl, t.light_raw]
   );
 }
 
@@ -64,15 +64,16 @@ async function closeSession(dev: string, endedAt: Date) {
             avg(heart_rate)::int AS hr,
             avg(temp_c) AS temp_c,
             avg(humidity) AS humidity,
+            avg(gas_ohm)::int AS gas,
             avg(db_spl) AS db_spl,
             avg(light_raw)::int AS light
      FROM telemetry WHERE device = $1 AND ts BETWEEN $2 AND $3
      GROUP BY minute ORDER BY minute`,
     [dev, startedAt, endedAt]
   );
-  const header = "minute,state,breathing,hr,temp_c,humidity,db_spl,light";
+  const header = "minute,state,breathing,hr,temp_c,humidity,gas_ohm,db_spl,light";
   const csv = [header, ...rows.map((r) =>
-    `${(r.minute as Date).toISOString()},${r.state},${r.breathing},${r.hr},${Number(r.temp_c).toFixed(1)},${Number(r.humidity).toFixed(1)},${Number(r.db_spl).toFixed(1)},${r.light}`
+    `${(r.minute as Date).toISOString()},${r.state},${r.breathing},${r.hr},${Number(r.temp_c).toFixed(1)},${Number(r.humidity).toFixed(1)},${r.gas},${Number(r.db_spl).toFixed(1)},${r.light}`
   )].join("\n");
 
   try {

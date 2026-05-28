@@ -7,9 +7,8 @@ Single app on Railway: MQTT subscriber runs inside `instrumentation.ts`, REST AP
 ## Local dev
 
 1. Copy `.env.local.example` to `.env.local` and fill in credentials.
-2. Apply the schema to your Postgres: `psql $DATABASE_URL -f db/schema.sql`.
-3. `npm run dev` → open `http://localhost:3000`.
-4. First load redirects to `/login`. Use the password from `DASHBOARD_PASSWORD`.
+2. `npm run dev` → open `http://localhost:3000`. Schema is auto-applied on first request via `instrumentation.ts` → `lib/migrate.ts`.
+3. First load redirects to `/login`. Use the password from `DASHBOARD_PASSWORD`.
 
 ## Layout
 
@@ -20,6 +19,8 @@ Single app on Railway: MQTT subscriber runs inside `instrumentation.ts`, REST AP
 | `lib/db.ts` | Postgres connection pool |
 | `lib/mqtt.ts` | MQTT subscriber + telemetry insert + wake detection + LLM trigger |
 | `lib/claude.ts` | Anthropic SDK wrapper, prompt-cached system prompt |
+| `lib/schema.ts` | Postgres schema as a TS const (inlined for production) |
+| `lib/migrate.ts` | Runs `SCHEMA_SQL` once on server boot (idempotent) |
 | `lib/types.ts` | Shared TypeScript types |
 | `app/page.tsx` | Dashboard (live panel + AI briefing + sleep-stage band) |
 | `app/login/page.tsx` | Password gate UI |
@@ -27,7 +28,7 @@ Single app on Railway: MQTT subscriber runs inside `instrumentation.ts`, REST AP
 | `app/api/live/route.ts` | GET `/api/live` — last 10 minutes of telemetry |
 | `app/api/nights/route.ts` | GET `/api/nights` — list of past nights |
 | `app/api/nights/[id]/route.ts` | GET `/api/nights/:id` — full night detail + report |
-| `db/schema.sql` | Postgres schema (3 tables) |
+| `scripts/pub-test.mjs` | Local debug: publishes a synthetic telemetry payload to MQTT |
 
 ## Deploy to Railway
 
@@ -35,4 +36,4 @@ Single app on Railway: MQTT subscriber runs inside `instrumentation.ts`, REST AP
 2. Create a Railway project, point it at this repo's `web/` folder.
 3. Add the Postgres add-on. `DATABASE_URL` is auto-injected.
 4. Set the rest of the env vars from `.env.local.example`.
-5. Apply the schema: in Railway Postgres console, paste `db/schema.sql`.
+5. Schema is auto-applied at startup; no manual migration step.
