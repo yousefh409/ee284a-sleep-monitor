@@ -44,10 +44,10 @@ const COPPER = "#8B6F47";
 const GROUND_RAISED = "#FFFFFF";
 
 function fmtTime(ts: string) {
-  return new Date(ts).toLocaleTimeString(undefined, {
-    hour: "2-digit",
+  return new Date(ts).toLocaleTimeString("en-US", {
+    hour: "numeric",
     minute: "2-digit",
-    second: "2-digit",
+    hour12: true,
   });
 }
 
