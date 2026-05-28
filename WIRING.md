@@ -11,14 +11,14 @@ One card per part. Every pin listed.
 
 | C1001 pin | Connects to |
 |---|---|
-| VCC | Feather **USB** pin (5 V passthrough) |
+| VIN | Feather **USB** pin (5 V passthrough) |
 | GND | Breadboard **−** rail (GND) |
 | TX | Feather **RX** pin |
 | RX | Feather **TX** pin |
 
 ## BME280 (temp / humidity / pressure)
 
-3.3 V power · I²C @ address `0x76` · pull-ups on-board.
+3.3 V power · I²C @ address `0x76` (clone) or `0x77` (Adafruit) · pull-ups on-board · firmware auto-detects.
 
 | BME280 pin | Connects to |
 |---|---|
@@ -27,26 +27,15 @@ One card per part. Every pin listed.
 | SDA | Feather **SDA** |
 | SCL | Feather **SCL** |
 
-## SGP30 (eCO₂ + TVOC)
-
-3.3 V power · I²C @ address `0x58` · shares the bus with BME280.
-
-| SGP30 pin | Connects to |
-|---|---|
-| VIN | Breadboard **+** rail (3 V3) |
-| GND | Breadboard **−** rail (GND) |
-| SDA | Feather **SDA** (same wire as BME280) |
-| SCL | Feather **SCL** (same wire as BME280) |
-
 ## SPW2430 (analog MEMS microphone)
 
 3.3 V power · analog output, ESP32 ADC1.
 
 | Mic pin | Connects to |
 |---|---|
-| VDD | Breadboard **+** rail (3 V3) |
+| Vin | Breadboard **+** rail (3 V3) |
 | GND | Breadboard **−** rail (GND) |
-| OUT | Feather **A2** (ADC1) |
+| DC | Feather **A2** (ADC1) |
 
 ## Photoresistor + 10 kΩ (voltage divider)
 
@@ -76,13 +65,13 @@ Plug the Feather across the breadboard's center channel. The pins below are the 
 
 | Feather pin | Connects to |
 |---|---|
-| USB | C1001 VCC (the only 5 V load) |
-| 3V3 | Breadboard **+** rail (drives BME280, SGP30, mic, LDR top) |
+| USB | C1001 VIN (the only 5 V load) |
+| 3V3 | Breadboard **+** rail (drives BME280, mic, LDR top) |
 | GND | Breadboard **−** rail (shared ground for everything) |
-| SDA | BME280 SDA + SGP30 SDA (shared wire) |
-| SCL | BME280 SCL + SGP30 SCL (shared wire) |
+| SDA | BME280 SDA |
+| SCL | BME280 SCL |
 | TX | C1001 RX |
 | RX | C1001 TX |
-| A2 | Mic OUT |
+| A2 | Mic DC |
 | A3 | Photoresistor / 10 kΩ junction |
 | D13 | LED via 330 Ω resistor |

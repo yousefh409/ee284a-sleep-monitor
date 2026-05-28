@@ -103,7 +103,7 @@ void setup() {
   Serial1.begin(115200);
 
   Wire.begin();
-  bme.begin(0x76, &Wire);
+  if (!bme.begin(0x76, &Wire)) bme.begin(0x77, &Wire);
   sgp.begin();
   radar.begin();
   radar.configWorkMode(DFRobot_HumanDetection::eSleepMode);
