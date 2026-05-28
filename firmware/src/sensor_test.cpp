@@ -85,6 +85,32 @@ void loop() {
     doc["hum_motion"]   = radar.smHumanData(DFRobot_HumanDetection::eHumanMovement);
     doc["hum_range"]    = radar.smHumanData(DFRobot_HumanDetection::eHumanMovingRange);
     doc["hum_dist_cm"]  = radar.smHumanData(DFRobot_HumanDetection::eHumanDistance);
+
+    // instant vitals (vs averaged composite above)
+    doc["hr_instant"]   = radar.getHeartRate();
+    doc["breath_state"] = radar.getBreatheState();
+    doc["breath_value"] = radar.getBreatheValue();
+
+    // bed-state queries
+    doc["wake_dur"]          = radar.smSleepData(DFRobot_HumanDetection::eWakeDuration);
+    doc["light_sleep_dur"]   = radar.smSleepData(DFRobot_HumanDetection::eLightsleep);
+    doc["deep_sleep_dur"]    = radar.smSleepData(DFRobot_HumanDetection::eDeepSleepDuration);
+    doc["sleep_quality"]     = radar.smSleepData(DFRobot_HumanDetection::eSleepQuality);
+    doc["disturbances"]      = radar.smSleepData(DFRobot_HumanDetection::eSleepDisturbances);
+    doc["quality_rating"]    = radar.smSleepData(DFRobot_HumanDetection::eSleepQualityRating);
+    doc["abnormal_struggle"] = radar.smSleepData(DFRobot_HumanDetection::eAbnormalStruggle);
+    doc["unattended_state"]  = radar.smSleepData(DFRobot_HumanDetection::eUnattendedState);
+    doc["unattended_time"]   = radar.smSleepData(DFRobot_HumanDetection::eUnattendedTime);
+
+    // session statistics
+    sSleepStatistics s = radar.getSleepStatistics();
+    doc["sleep_score"]      = s.sleepQualityScore;
+    doc["sleep_time_min"]   = s.sleepTime;
+    doc["shallow_pct"]      = s.shallowSleepPercentage;
+    doc["deep_pct"]         = s.deepSleepPercentage;
+    doc["time_out_of_bed"]  = s.timeOutOfBed;
+    doc["exit_count"]       = s.exitCount;
+    doc["turnover_total"]   = s.turnOverCount;
   } else {
     doc["radar"] = "missing";
   }

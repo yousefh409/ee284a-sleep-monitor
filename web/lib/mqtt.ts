@@ -30,11 +30,19 @@ async function insertTelemetry(t: Telemetry) {
   await pool.query(
     `INSERT INTO telemetry (device, ts, presence, in_bed, sleep_state, breathing, heart_rate,
        turnover, body_move_large, body_move_small, apnea_events, temp_c, humidity, pressure_hpa,
-       gas_ohm, db_spl, light_raw, hum_presence, hum_motion, hum_range, hum_dist_cm)
-     VALUES ($1, to_timestamp($2), $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`,
+       gas_ohm, db_spl, light_raw, hum_presence, hum_motion, hum_range, hum_dist_cm,
+       hr_instant, breath_state, breath_value, wake_dur, light_sleep_dur, deep_sleep_dur,
+       sleep_quality, disturbances, quality_rating, abnormal_struggle, unattended_state, unattended_time,
+       sleep_score, sleep_time_min, shallow_pct, deep_pct, time_out_of_bed, exit_count, turnover_total)
+     VALUES ($1, to_timestamp($2),
+       $3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,
+       $22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$37,$38,$39,$40)`,
     [t.dev, t.t, t.presence, t.in_bed, t.sleep_state, t.breathing, t.heart_rate,
      t.turnover, t.body_move_large, t.body_move_small, t.apnea_events, t.temp_c, t.humidity,
-     t.pressure_hpa, t.gas_ohm, t.db_spl, t.light_raw, t.hum_presence, t.hum_motion, t.hum_range, t.hum_dist_cm]
+     t.pressure_hpa, t.gas_ohm, t.db_spl, t.light_raw, t.hum_presence, t.hum_motion, t.hum_range, t.hum_dist_cm,
+     t.hr_instant, t.breath_state, t.breath_value, t.wake_dur, t.light_sleep_dur, t.deep_sleep_dur,
+     t.sleep_quality, t.disturbances, t.quality_rating, t.abnormal_struggle, t.unattended_state, t.unattended_time,
+     t.sleep_score, t.sleep_time_min, t.shallow_pct, t.deep_pct, t.time_out_of_bed, t.exit_count, t.turnover_total]
   );
 }
 

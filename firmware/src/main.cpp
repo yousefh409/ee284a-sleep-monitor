@@ -77,6 +77,29 @@ void publishTelemetry() {
   doc["hum_range"]      = radar.smHumanData(DFRobot_HumanDetection::eHumanMovingRange);
   doc["hum_dist_cm"]    = radar.smHumanData(DFRobot_HumanDetection::eHumanDistance);
 
+  doc["hr_instant"]     = radar.getHeartRate();
+  doc["breath_state"]   = radar.getBreatheState();
+  doc["breath_value"]   = radar.getBreatheValue();
+
+  doc["wake_dur"]          = radar.smSleepData(DFRobot_HumanDetection::eWakeDuration);
+  doc["light_sleep_dur"]   = radar.smSleepData(DFRobot_HumanDetection::eLightsleep);
+  doc["deep_sleep_dur"]    = radar.smSleepData(DFRobot_HumanDetection::eDeepSleepDuration);
+  doc["sleep_quality"]     = radar.smSleepData(DFRobot_HumanDetection::eSleepQuality);
+  doc["disturbances"]      = radar.smSleepData(DFRobot_HumanDetection::eSleepDisturbances);
+  doc["quality_rating"]    = radar.smSleepData(DFRobot_HumanDetection::eSleepQualityRating);
+  doc["abnormal_struggle"] = radar.smSleepData(DFRobot_HumanDetection::eAbnormalStruggle);
+  doc["unattended_state"]  = radar.smSleepData(DFRobot_HumanDetection::eUnattendedState);
+  doc["unattended_time"]   = radar.smSleepData(DFRobot_HumanDetection::eUnattendedTime);
+
+  sSleepStatistics s = radar.getSleepStatistics();
+  doc["sleep_score"]      = s.sleepQualityScore;
+  doc["sleep_time_min"]   = s.sleepTime;
+  doc["shallow_pct"]      = s.shallowSleepPercentage;
+  doc["deep_pct"]         = s.deepSleepPercentage;
+  doc["time_out_of_bed"]  = s.timeOutOfBed;
+  doc["exit_count"]       = s.exitCount;
+  doc["turnover_total"]   = s.turnOverCount;
+
   if (bme.performReading()) {
     doc["temp_c"]       = bme.temperature;
     doc["humidity"]     = bme.humidity;
@@ -86,7 +109,7 @@ void publishTelemetry() {
   doc["db_spl"]         = db_max;
   doc["light_raw"]      = analogRead(LDR_PIN);
 
-  char buf[512];
+  char buf[1024];
   size_t n = serializeJson(doc, buf);
   mqtt.publish(MQTT_TOPIC, buf, n);
 }
@@ -112,7 +135,7 @@ void setup() {
   wifiConnect();
   net.setInsecure();
   mqtt.setServer(MQTT_HOST, MQTT_PORT);
-  mqtt.setBufferSize(512);
+  mqtt.setBufferSize(1024);
   mqttConnect();
 }
 

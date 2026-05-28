@@ -20,6 +20,25 @@ export type Telemetry = {
   hum_motion?: number;
   hum_range?: number;
   hum_dist_cm?: number;
+  hr_instant?: number;
+  breath_state?: number;
+  breath_value?: number;
+  wake_dur?: number;
+  light_sleep_dur?: number;
+  deep_sleep_dur?: number;
+  sleep_quality?: number;
+  disturbances?: number;
+  quality_rating?: number;
+  abnormal_struggle?: number;
+  unattended_state?: number;
+  unattended_time?: number;
+  sleep_score?: number;
+  sleep_time_min?: number;
+  shallow_pct?: number;
+  deep_pct?: number;
+  time_out_of_bed?: number;
+  exit_count?: number;
+  turnover_total?: number;
 };
 
 export type SleepReport = {

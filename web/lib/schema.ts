@@ -21,7 +21,26 @@ CREATE TABLE IF NOT EXISTS telemetry (
   hum_presence    INT,
   hum_motion      INT,
   hum_range       INT,
-  hum_dist_cm     INT
+  hum_dist_cm     INT,
+  hr_instant      INT,
+  breath_state    INT,
+  breath_value    INT,
+  wake_dur        INT,
+  light_sleep_dur INT,
+  deep_sleep_dur  INT,
+  sleep_quality   INT,
+  disturbances    INT,
+  quality_rating  INT,
+  abnormal_struggle INT,
+  unattended_state INT,
+  unattended_time INT,
+  sleep_score     INT,
+  sleep_time_min  INT,
+  shallow_pct     INT,
+  deep_pct        INT,
+  time_out_of_bed INT,
+  exit_count      INT,
+  turnover_total  INT
 );
 
 ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS gas_ohm INT;
@@ -29,6 +48,25 @@ ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS hum_presence INT;
 ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS hum_motion INT;
 ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS hum_range INT;
 ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS hum_dist_cm INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS hr_instant INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS breath_state INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS breath_value INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS wake_dur INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS light_sleep_dur INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS deep_sleep_dur INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS sleep_quality INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS disturbances INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS quality_rating INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS abnormal_struggle INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS unattended_state INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS unattended_time INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS sleep_score INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS sleep_time_min INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS shallow_pct INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS deep_pct INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS time_out_of_bed INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS exit_count INT;
+ALTER TABLE telemetry ADD COLUMN IF NOT EXISTS turnover_total INT;
 
 CREATE INDEX IF NOT EXISTS telemetry_device_ts_idx ON telemetry (device, ts DESC);
 
