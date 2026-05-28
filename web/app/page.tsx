@@ -18,7 +18,7 @@ import { StageBand } from "./components/StageBand";
 import { WakeEvents } from "./components/WakeEvents";
 import { Recommendations } from "./components/Recommendations";
 import { EmptyState } from "./components/EmptyState";
-import { VitalsChart, EnvironmentChart, AudioLightChart } from "./components/LiveCharts";
+import { VitalsChart, EnvironmentChart, AudioChart, LightChart } from "./components/LiveCharts";
 import { TelemetryTable } from "./components/TelemetryTable";
 
 type StagePct = { awake: number; light: number; deep: number };
@@ -179,7 +179,8 @@ function PageInner() {
 
         <VitalsChart rows={chartRows} />
         <EnvironmentChart rows={chartRows} />
-        <AudioLightChart rows={chartRows} />
+        <AudioChart rows={chartRows} />
+        <LightChart rows={chartRows} />
 
         <TelemetryTable rows={chartRows} />
       </div>

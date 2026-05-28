@@ -123,10 +123,13 @@ function yAxis(opts: { color?: string; position?: "left" | "right"; suggestedMin
   };
 }
 
-function ChartShell({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartShell({ title, guide, children }: { title: string; guide?: string; children: React.ReactNode }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">{title}</h2>
+      <div className="space-y-0.5">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">{title}</h2>
+        {guide && <p className="text-[11px] text-ink-muted/70">{guide}</p>}
+      </div>
       <div className="h-56">{children}</div>
     </section>
   );
@@ -161,7 +164,7 @@ export function VitalsChart({ rows }: { rows: ChartRow[] }) {
   }), []);
 
   return (
-    <ChartShell title="Vitals · bpm">
+    <ChartShell title="Vitals · bpm" guide="breathing 12-20 · resting HR 60-80 (normal range)">
       <Line data={data} options={options} />
     </ChartShell>
   );
@@ -234,7 +237,10 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
 
   return (
     <section className="space-y-3">
-      <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">Environment</h2>
+      <div className="space-y-0.5">
+        <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">Environment</h2>
+        <p className="text-[11px] text-ink-muted/70">temp 60-68°F · humidity 30-50% · pressure 1010-1020 hPa · gas higher = cleaner air</p>
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">temp °C</p>
@@ -257,7 +263,7 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
   );
 }
 
-export function AudioLightChart({ rows }: { rows: ChartRow[] }) {
+export function AudioChart({ rows }: { rows: ChartRow[] }) {
   const data = useMemo(() => ({
     labels: rows.map((r) => fmtTime(r.ts)),
     datasets: [
@@ -266,34 +272,56 @@ export function AudioLightChart({ rows }: { rows: ChartRow[] }) {
         data: rows.map((r) => r.db_spl ?? null),
         borderColor: COPPER,
         backgroundColor: COPPER,
-        yAxisID: "y",
-        spanGaps: true,
-      },
-      {
-        label: "light",
-        data: rows.map((r) => r.light_raw ?? null),
-        borderColor: INK_MUTED,
-        backgroundColor: INK_MUTED,
-        yAxisID: "y1",
         spanGaps: true,
       },
     ],
   }), [rows]);
 
   const options = useMemo(() => baseOptions({
+    plugins: { legend: { display: false }, tooltip: {
+      backgroundColor: GROUND_RAISED, borderColor: RULE, borderWidth: 1,
+      titleColor: INK, bodyColor: INK_MUTED, padding: 10,
+    } },
     scales: {
       x: xAxis(),
-      y: { ...yAxis({ position: "left" }), title: { display: true, text: "dB", color: INK_MUTED, font: { size: 10 } } },
-      y1: {
-        ...yAxis({ position: "right", suggestedMin: 0, suggestedMax: 4095 }),
-        grid: { drawOnChartArea: false },
-        title: { display: true, text: "light", color: INK_MUTED, font: { size: 10 } },
-      },
+      y: { ...yAxis({ suggestedMin: 20, suggestedMax: 90 }), min: 20, max: 90 },
     },
   }), []);
 
   return (
-    <ChartShell title="Audio & light">
+    <ChartShell title="Sound · dB" guide="<40 quiet · 50-60 normal speech · 70+ disturbing">
+      <Line data={data} options={options} />
+    </ChartShell>
+  );
+}
+
+export function LightChart({ rows }: { rows: ChartRow[] }) {
+  const data = useMemo(() => ({
+    labels: rows.map((r) => fmtTime(r.ts)),
+    datasets: [
+      {
+        label: "light",
+        data: rows.map((r) => r.light_raw ?? null),
+        borderColor: INK_MUTED,
+        backgroundColor: INK_MUTED,
+        spanGaps: true,
+      },
+    ],
+  }), [rows]);
+
+  const options = useMemo(() => baseOptions({
+    plugins: { legend: { display: false }, tooltip: {
+      backgroundColor: GROUND_RAISED, borderColor: RULE, borderWidth: 1,
+      titleColor: INK, bodyColor: INK_MUTED, padding: 10,
+    } },
+    scales: {
+      x: xAxis(),
+      y: { ...yAxis({ suggestedMin: 0, suggestedMax: 500 }), min: 0 },
+    },
+  }), []);
+
+  return (
+    <ChartShell title="Ambient light" guide="0 = dark · higher = brighter (relative units)">
       <Line data={data} options={options} />
     </ChartShell>
   );
