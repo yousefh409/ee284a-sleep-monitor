@@ -14,10 +14,21 @@ type Props = {
   deepSleepMin: number | null;      // sensor: deep_sleep_dur (max)
 };
 
-function Stat({ label, value, unit }: { label: string; value: string | number; unit?: string }) {
+function Stat({ label, value, unit, info }: { label: string; value: string | number; unit?: string; info?: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">{label}</span>
+      <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">
+        {label}
+        {info && (
+          <span
+            title={info}
+            aria-label={info}
+            className="cursor-help text-[10px] text-ink-muted/60"
+          >
+            ⓘ
+          </span>
+        )}
+      </span>
       <span className="text-[22px] font-normal leading-none tracking-[-0.01em] text-ink">
         {value}
         {unit && <span className="ml-1 text-sm text-ink-muted">{unit}</span>}
@@ -43,20 +54,20 @@ export function StatsRow({
   return (
     <section className="space-y-6 border-t border-rule pt-6">
       <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-5">
-        <Stat label="Awake" value={fmt(stagePct?.awake)} unit="%" />
-        <Stat label="Light" value={fmt(stagePct?.light)} unit="%" />
-        <Stat label="Deep" value={fmt(stagePct?.deep)} unit="%" />
-        <Stat label="Avg br" value={fmt(vitals?.avg_breathing)} unit="bpm" />
-        <Stat label="Avg hr" value={fmt(vitals?.avg_heart_rate)} unit="bpm" />
+        <Stat label="Awake" value={fmt(stagePct?.awake)} unit="%" info="Percent of session estimated as awake (AI-derived from telemetry)." />
+        <Stat label="Light" value={fmt(stagePct?.light)} unit="%" info="Percent of session estimated as light sleep (AI-derived)." />
+        <Stat label="Deep" value={fmt(stagePct?.deep)} unit="%" info="Percent of session estimated as deep sleep (AI-derived)." />
+        <Stat label="Avg br" value={fmt(vitals?.avg_breathing)} unit="bpm" info="Average breathing rate over the night, in breaths per minute." />
+        <Stat label="Avg hr" value={fmt(vitals?.avg_heart_rate)} unit="bpm" info="Average heart rate over the night, in beats per minute." />
       </div>
       <div className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
-        <Stat label="Time sleeping" value={fmtMin(sleepTimeMin)} />
-        <Stat label="Awake in bed" value={fmtMin(wakeDurMin)} />
-        <Stat label="Light sleep" value={fmtMin(lightSleepMin)} />
-        <Stat label="Deep sleep" value={fmtMin(deepSleepMin)} />
-        <Stat label="Turnover" value={fmt(turnover)} />
-        <Stat label="Apnea" value={fmt(apneaEvents)} />
-        <Stat label="Sleep quality" value={fmt(sleepQuality)} />
+        <Stat label="Time sleeping" value={fmtMin(sleepTimeMin)} info="Total time asleep (light + deep) reported by the radar sensor." />
+        <Stat label="Awake in bed" value={fmtMin(wakeDurMin)} info="Minutes the radar saw you in bed but awake." />
+        <Stat label="Light sleep" value={fmtMin(lightSleepMin)} info="Minutes the radar classified as light sleep." />
+        <Stat label="Deep sleep" value={fmtMin(deepSleepMin)} info="Minutes the radar classified as deep sleep." />
+        <Stat label="Turnover" value={fmt(turnover)} info="Total number of significant turns/rolls detected by the radar." />
+        <Stat label="Apnea" value={fmt(apneaEvents)} info="Number of apnea-like respiratory events flagged by the radar." />
+        <Stat label="Sleep quality" value={fmt(sleepQuality)} info="Radar's overall sleep quality rating for the session (0-100, higher is better)." />
       </div>
     </section>
   );
