@@ -219,8 +219,10 @@ function PageInner() {
 
         <VitalsChart rows={chartRows} />
         <EnvironmentChart rows={chartRows} />
-        <AudioChart rows={chartRows} />
-        <LightChart rows={chartRows} />
+        <div className="grid gap-6 sm:grid-cols-2">
+          <AudioChart rows={chartRows} />
+          <LightChart rows={chartRows} />
+        </div>
 
         <TelemetryTable rows={chartRows} />
       </div>
