@@ -37,11 +37,11 @@ export type ChartRow = {
   light_raw: number | null;
 };
 
-const STONE_900 = "#1c1917";
-const STONE_500 = "#78716c";
-const STONE_400 = "#a8a29e";
-const STONE_300 = "#d6d3d1";
-const STONE_200 = "#e7e5e4";
+const INK = "#1A1815";
+const INK_MUTED = "#5C574F";
+const RULE = "#E5DFD2";
+const COPPER = "#8B6F47";
+const GROUND_RAISED = "#FFFFFF";
 
 function fmtTime(ts: string) {
   return new Date(ts).toLocaleTimeString(undefined, {
@@ -67,7 +67,7 @@ function baseOptions(extra: Record<string, unknown> = {}) {
         display: true,
         position: "bottom" as const,
         labels: {
-          color: STONE_500,
+          color: INK_MUTED,
           font: { size: 11 },
           boxWidth: 10,
           boxHeight: 10,
@@ -75,11 +75,11 @@ function baseOptions(extra: Record<string, unknown> = {}) {
         },
       },
       tooltip: {
-        backgroundColor: "#ffffff",
-        borderColor: STONE_200,
+        backgroundColor: GROUND_RAISED,
+        borderColor: RULE,
         borderWidth: 1,
-        titleColor: STONE_900,
-        bodyColor: STONE_500,
+        titleColor: INK,
+        bodyColor: INK_MUTED,
         padding: 10,
         displayColors: true,
       },
@@ -97,7 +97,7 @@ function xAxis() {
     type: "category" as const,
     grid: { display: false, drawBorder: false },
     ticks: {
-      color: STONE_400,
+      color: INK_MUTED,
       font: { size: 10 },
       maxTicksLimit: 6,
       autoSkip: true,
@@ -110,11 +110,11 @@ function yAxis(opts: { color?: string; position?: "left" | "right"; suggestedMin
     type: "linear" as const,
     position: opts.position ?? ("left" as const),
     grid: {
-      color: STONE_200,
+      color: RULE,
       drawBorder: false,
     },
     ticks: {
-      color: opts.color ?? STONE_400,
+      color: opts.color ?? INK_MUTED,
       font: { size: 10 },
       maxTicksLimit: 5,
     },
@@ -123,10 +123,10 @@ function yAxis(opts: { color?: string; position?: "left" | "right"; suggestedMin
   };
 }
 
-function CardShell({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-stone-500">{title}</h2>
+    <section className="space-y-3">
+      <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">{title}</h2>
       <div className="h-56">{children}</div>
     </section>
   );
@@ -139,15 +139,15 @@ export function VitalsChart({ rows }: { rows: ChartRow[] }) {
       {
         label: "breathing",
         data: rows.map((r) => nullZero(r.breathing)),
-        borderColor: STONE_900,
-        backgroundColor: STONE_900,
+        borderColor: INK_MUTED,
+        backgroundColor: INK_MUTED,
         spanGaps: false,
       },
       {
         label: "heart rate",
         data: rows.map((r) => nullZero(r.heart_rate)),
-        borderColor: STONE_500,
-        backgroundColor: STONE_500,
+        borderColor: COPPER,
+        backgroundColor: COPPER,
         spanGaps: false,
       },
     ],
@@ -161,9 +161,9 @@ export function VitalsChart({ rows }: { rows: ChartRow[] }) {
   }), []);
 
   return (
-    <CardShell title="Vitals · bpm">
+    <ChartShell title="Vitals · bpm">
       <Line data={data} options={options} />
-    </CardShell>
+    </ChartShell>
   );
 }
 
@@ -175,8 +175,8 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
     datasets: [{
       label: "temp °C",
       data: rows.map((r) => r.temp_c ?? null),
-      borderColor: STONE_900,
-      backgroundColor: STONE_900,
+      borderColor: COPPER,
+      backgroundColor: COPPER,
       spanGaps: true,
     }],
   }), [rows]);
@@ -186,8 +186,8 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
     datasets: [{
       label: "humidity %",
       data: rows.map((r) => r.humidity ?? null),
-      borderColor: STONE_500,
-      backgroundColor: STONE_500,
+      borderColor: INK_MUTED,
+      backgroundColor: INK_MUTED,
       spanGaps: true,
     }],
   }), [rows]);
@@ -197,8 +197,8 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
     datasets: [{
       label: "pressure hPa",
       data: rows.map((r) => r.pressure_hpa ?? null),
-      borderColor: STONE_900,
-      backgroundColor: STONE_900,
+      borderColor: COPPER,
+      backgroundColor: COPPER,
       spanGaps: true,
     }],
   }), [rows]);
@@ -208,8 +208,8 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
     datasets: [{
       label: "gas Ω",
       data: rows.map((r) => r.gas_ohm ?? null),
-      borderColor: STONE_500,
-      backgroundColor: STONE_500,
+      borderColor: INK_MUTED,
+      backgroundColor: INK_MUTED,
       spanGaps: true,
     }],
   }), [rows]);
@@ -218,11 +218,11 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: "#ffffff",
-        borderColor: STONE_200,
+        backgroundColor: GROUND_RAISED,
+        borderColor: RULE,
         borderWidth: 1,
-        titleColor: STONE_900,
-        bodyColor: STONE_500,
+        titleColor: INK,
+        bodyColor: INK_MUTED,
         padding: 10,
       },
     },
@@ -233,23 +233,23 @@ export function EnvironmentChart({ rows }: { rows: ChartRow[] }) {
   }), []);
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-stone-500">Environment</h2>
+    <section className="space-y-3">
+      <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">Environment</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="mb-2 text-xs text-stone-500">temp °C</p>
+          <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">temp °C</p>
           <div className="h-32"><Line data={tempData} options={sparkOptions} /></div>
         </div>
         <div>
-          <p className="mb-2 text-xs text-stone-500">humidity %</p>
+          <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">humidity %</p>
           <div className="h-32"><Line data={humData} options={sparkOptions} /></div>
         </div>
         <div>
-          <p className="mb-2 text-xs text-stone-500">pressure hPa</p>
+          <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">pressure hPa</p>
           <div className="h-32"><Line data={presData} options={sparkOptions} /></div>
         </div>
         <div>
-          <p className="mb-2 text-xs text-stone-500">gas Ω</p>
+          <p className="mb-2 text-[11px] uppercase tracking-[0.08em] text-ink-muted">gas Ω</p>
           <div className="h-32"><Line data={gasData} options={sparkOptions} /></div>
         </div>
       </div>
@@ -264,16 +264,16 @@ export function AudioLightChart({ rows }: { rows: ChartRow[] }) {
       {
         label: "dB SPL",
         data: rows.map((r) => r.db_spl ?? null),
-        borderColor: STONE_900,
-        backgroundColor: STONE_900,
+        borderColor: COPPER,
+        backgroundColor: COPPER,
         yAxisID: "y",
         spanGaps: true,
       },
       {
         label: "light",
         data: rows.map((r) => r.light_raw ?? null),
-        borderColor: STONE_500,
-        backgroundColor: STONE_500,
+        borderColor: INK_MUTED,
+        backgroundColor: INK_MUTED,
         yAxisID: "y1",
         spanGaps: true,
       },
@@ -283,18 +283,18 @@ export function AudioLightChart({ rows }: { rows: ChartRow[] }) {
   const options = useMemo(() => baseOptions({
     scales: {
       x: xAxis(),
-      y: { ...yAxis({ position: "left" }), title: { display: true, text: "dB", color: STONE_400, font: { size: 10 } } },
+      y: { ...yAxis({ position: "left" }), title: { display: true, text: "dB", color: INK_MUTED, font: { size: 10 } } },
       y1: {
         ...yAxis({ position: "right", suggestedMin: 0, suggestedMax: 4095 }),
         grid: { drawOnChartArea: false },
-        title: { display: true, text: "light", color: STONE_400, font: { size: 10 } },
+        title: { display: true, text: "light", color: INK_MUTED, font: { size: 10 } },
       },
     },
   }), []);
 
   return (
-    <CardShell title="Audio & light">
+    <ChartShell title="Audio & light">
       <Line data={data} options={options} />
-    </CardShell>
+    </ChartShell>
   );
 }
