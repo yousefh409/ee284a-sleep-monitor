@@ -167,7 +167,6 @@ function PageInner() {
   const deepSleepMin = maxField(inNightRows, "deep_sleep_dur");
   const sleepTimeMin = maxField(inNightRows, "sleep_time_min");
   const wakeDurMin = maxField(inNightRows, "wake_dur");
-  const durationSec = detail?.night.duration_sec ?? null;
 
   // Charts expect rows with `ts` ISO timestamps and the relevant fields — both endpoints return that shape.
   const chartRows = rows;
