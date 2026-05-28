@@ -1,6 +1,52 @@
 @import "tailwindcss";
 
 :root {
+  /* Mood: bookish × mineral */
+  --ground: #F5F1E8;
+  --ground-raised: #FFFFFF;
+  --ink: #1A1815;
+  --ink-muted: #5C574F;
+  --rule: #E5DFD2;
+  --copper: #8B6F47;
+  --copper-soft: rgba(139, 111, 71, 0.15);
+  --stage-out: #EBE5D6;
+  --stage-awake: #C9C0AC;
+  --stage-light: #7A7468;
+  --stage-deep: #1A1815;
+
+  /* Heatmap scale (5 steps, low → high sleep score). Derived from --copper. */
+  --heat-1: rgba(139, 111, 71, 0.12);
+  --heat-2: rgba(139, 111, 71, 0.28);
+  --heat-3: rgba(139, 111, 71, 0.46);
+  --heat-4: rgba(139, 111, 71, 0.68);
+  --heat-5: rgba(139, 111, 71, 0.92);
+}
+
+@theme {
+  /* Tailwind v4: expose tokens as utilities like bg-ground, text-ink */
+  --color-ground: #F5F1E8;
+  --color-ground-raised: #FFFFFF;
+  --color-ink: #1A1815;
+  --color-ink-muted: #5C574F;
+  --color-rule: #E5DFD2;
+  --color-copper: #8B6F47;
+  --color-copper-soft: rgba(139, 111, 71, 0.15);
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Pulsing ring for today-in-progress slot in calendar */
+@keyframes copper-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px var(--copper); }
+  50% { box-shadow: 0 0 0 1px var(--copper), 0 0 0 4px var(--copper-soft); }
+}
+.pulse-copper { animation: copper-pulse 2s ease-in-out infinite; }
+
+:root {
   --background: #ffffff;
   --foreground: #171717;
 }
