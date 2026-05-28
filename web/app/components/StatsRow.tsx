@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 type StagePct = { awake: number; light: number; deep: number };
 type Vitals = { avg_breathing: number; avg_heart_rate: number };
 
@@ -15,13 +19,17 @@ type Props = {
 };
 
 function Stat({ label, value, unit, info }: { label: string; value: string | number; unit?: string; info?: string }) {
+  const [open, setOpen] = useState(false);
   return (
-    <div className="flex flex-col gap-1">
-      <span className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">
+    <div
+      className="relative flex flex-col gap-1"
+      onMouseEnter={() => info && setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <span className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">
         {label}
         {info && (
           <span
-            title={info}
             aria-label={info}
             className="inline-flex h-3.5 w-3.5 cursor-help items-center justify-center rounded-full border border-ink-muted/40 font-serif text-[9px] italic leading-none text-ink-muted/70"
           >
@@ -33,6 +41,11 @@ function Stat({ label, value, unit, info }: { label: string; value: string | num
         {value}
         {unit && <span className="ml-1 text-sm text-ink-muted">{unit}</span>}
       </span>
+      {info && open && (
+        <div className="absolute left-0 top-full z-20 mt-1 w-60 rounded-lg border border-rule bg-ground-raised p-3 text-[12px] font-normal normal-case leading-snug tracking-normal text-ink shadow-lg">
+          {info}
+        </div>
+      )}
     </div>
   );
 }
