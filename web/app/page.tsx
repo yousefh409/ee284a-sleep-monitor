@@ -159,7 +159,6 @@ function PageInner() {
         return ts >= startMs && ts <= endMs;
       });
 
-  const sensorScore = maxField(inNightRows, "sleep_score");
   const sleepQuality = lastField(inNightRows, "sleep_quality");
   const turnover = maxField(inNightRows, "turnover_total");
   const apneaEvents = maxField(inNightRows, "apnea_events");
@@ -210,7 +209,6 @@ function PageInner() {
           vitals={slot.inProgress ? null : (detail?.night.vitals ?? null)}
           sleepTimeMin={sleepTimeMin}
           wakeDurMin={wakeDurMin}
-          sensorScore={sensorScore}
           sleepQuality={sleepQuality}
           turnover={turnover}
           apneaEvents={apneaEvents}

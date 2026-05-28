@@ -7,7 +7,6 @@ type Props = {
   // Sensor-derived totals (preferred for time stats — match the per-stage breakdown)
   sleepTimeMin: number | null;      // sensor: total sleep minutes (light + deep)
   wakeDurMin: number | null;        // sensor: minutes awake in bed
-  sensorScore: number | null;       // sensor's sleep_score (max value across session)
   sleepQuality: number | null;      // sensor's sleep_quality (last value)
   turnover: number | null;          // turnover_total (max)
   apneaEvents: number | null;       // apnea_events (max)
@@ -39,7 +38,7 @@ function fmt(n: number | null | undefined): string {
 }
 
 export function StatsRow({
-  stagePct, vitals, sleepTimeMin, wakeDurMin, sensorScore, sleepQuality, turnover, apneaEvents, lightSleepMin, deepSleepMin,
+  stagePct, vitals, sleepTimeMin, wakeDurMin, sleepQuality, turnover, apneaEvents, lightSleepMin, deepSleepMin,
 }: Props) {
   return (
     <section className="space-y-6 border-t border-rule pt-6">
@@ -57,7 +56,6 @@ export function StatsRow({
         <Stat label="Deep sleep" value={fmtMin(deepSleepMin)} />
         <Stat label="Turnover" value={fmt(turnover)} />
         <Stat label="Apnea" value={fmt(apneaEvents)} />
-        <Stat label="Sensor score" value={fmt(sensorScore)} />
         <Stat label="Sleep quality" value={fmt(sleepQuality)} />
       </div>
     </section>
