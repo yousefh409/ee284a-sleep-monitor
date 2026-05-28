@@ -52,23 +52,23 @@ export function NightHero({ score, headline, inProgress, startedAt, endedAt, dur
           </p>
         )}
         {showTimes && (
-          <div className="grid grid-cols-3 gap-x-8 gap-y-1 text-[18px]">
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-[18px]">
             {bed && (
-              <div className="flex flex-col">
+              <div>
                 <span className="text-[11px] uppercase tracking-[0.08em] text-ink-muted">Asleep</span>
-                <span className="font-mono text-ink">{bed}</span>
+                <span className="ml-2 font-mono text-ink">{bed}</span>
               </div>
             )}
             {wake && (
-              <div className="flex flex-col">
+              <div>
                 <span className="text-[11px] uppercase tracking-[0.08em] text-ink-muted">Awake</span>
-                <span className="font-mono text-ink">{wake}</span>
+                <span className="ml-2 font-mono text-ink">{wake}</span>
               </div>
             )}
             {dur && (
-              <div className="flex flex-col">
+              <div>
                 <span className="text-[11px] uppercase tracking-[0.08em] text-ink-muted">Total</span>
-                <span className="font-mono text-ink">{dur}</span>
+                <span className="ml-2 font-mono text-ink">{dur}</span>
               </div>
             )}
           </div>

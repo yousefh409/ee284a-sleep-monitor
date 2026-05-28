@@ -165,7 +165,9 @@ function PageInner() {
   const apneaEvents = maxField(inNightRows, "apnea_events");
   const lightSleepMin = maxField(inNightRows, "light_sleep_dur");
   const deepSleepMin = maxField(inNightRows, "deep_sleep_dur");
-  const sleepTimeMin = maxField(inNightRows, "sleep_time_min");
+  // sensor `sleep_time_min` (uint16 sleepTime) accumulates across sessions and overflows
+  // the per-night value; compute total sleep time from the per-session uint8 fields instead.
+  const sleepTimeMin = (lightSleepMin ?? 0) + (deepSleepMin ?? 0) || null;
   const wakeDurMin = maxField(inNightRows, "wake_dur");
 
   // Charts expect rows with `ts` ISO timestamps and the relevant fields — both endpoints return that shape.
