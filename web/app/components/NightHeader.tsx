@@ -31,7 +31,7 @@ export function NightHeader({ slot, prev, next, onPrev, onNext, onOpenCalendar }
         onClick={onPrev}
         disabled={!prev}
         aria-label="Previous night"
-        className="rounded-full p-2 text-ink-muted transition disabled:opacity-30 enabled:hover:bg-rule"
+        className="rounded-full p-3 text-4xl leading-none text-ink-muted transition disabled:opacity-30 enabled:hover:bg-rule enabled:hover:text-ink"
       >
         <span aria-hidden>‹</span>
       </button>
@@ -57,7 +57,7 @@ export function NightHeader({ slot, prev, next, onPrev, onNext, onOpenCalendar }
           onClick={onNext}
           disabled={!next}
           aria-label="Next night"
-          className="rounded-full p-2 text-ink-muted transition disabled:opacity-30 enabled:hover:bg-rule"
+          className="rounded-full p-3 text-4xl leading-none text-ink-muted transition disabled:opacity-30 enabled:hover:bg-rule enabled:hover:text-ink"
         >
           <span aria-hidden>›</span>
         </button>
