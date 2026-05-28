@@ -15,21 +15,51 @@ type NightRow = {
 type LiveRow = {
   t: number;
   ts: string;
+  // C1001 composite
   presence: number | null;
   in_bed: number | null;
   sleep_state: number | null;
   breathing: number | null;
   heart_rate: number | null;
-  temp_c: number | null;
-  humidity: number | null;
-  pressure_hpa: number | null;
-  gas_ohm: number | null;
-  db_spl: number | null;
-  light_raw: number | null;
+  turnover: number | null;
+  body_move_large: number | null;
+  body_move_small: number | null;
+  apnea_events: number | null;
+  // C1001 human queries
   hum_presence: number | null;
   hum_motion: number | null;
   hum_range: number | null;
   hum_dist_cm: number | null;
+  // C1001 instant vitals
+  hr_instant: number | null;
+  breath_state: number | null;
+  breath_value: number | null;
+  // C1001 bed-state queries
+  wake_dur: number | null;
+  light_sleep_dur: number | null;
+  deep_sleep_dur: number | null;
+  sleep_quality: number | null;
+  disturbances: number | null;
+  quality_rating: number | null;
+  abnormal_struggle: number | null;
+  unattended_state: number | null;
+  unattended_time: number | null;
+  // C1001 session statistics
+  sleep_score: number | null;
+  sleep_time_min: number | null;
+  shallow_pct: number | null;
+  deep_pct: number | null;
+  time_out_of_bed: number | null;
+  exit_count: number | null;
+  turnover_total: number | null;
+  // BME680
+  temp_c: number | null;
+  humidity: number | null;
+  pressure_hpa: number | null;
+  gas_ohm: number | null;
+  // Audio + light
+  db_spl: number | null;
+  light_raw: number | null;
 };
 
 type Report = {
