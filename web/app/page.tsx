@@ -172,6 +172,9 @@ function PageInner() {
             onPrev={() => prev && setDate(prev.date)}
             onNext={() => next && setDate(next.date)}
             onOpenCalendar={() => setCalOpen(o => !o)}
+            startedAt={slot.inProgress ? null : (detail?.night.started_at ?? null)}
+            endedAt={slot.inProgress ? null : (detail?.night.ended_at ?? null)}
+            durationSec={slot.inProgress ? null : (detail?.night.duration_sec ?? null)}
           />
           {calOpen && (
             <CalendarPopover
