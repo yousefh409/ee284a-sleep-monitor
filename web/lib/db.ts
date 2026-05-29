@@ -6,13 +6,13 @@ declare global {
 }
 
 const url = process.env.DATABASE_URL ?? "";
-const isInternal = url.includes(".railway.internal");
+const noSsl = url.includes(".railway.internal") || url.includes(".proxy.rlwy.net");
 
 export const pool =
   global.__pgPool ??
   new Pool({
     connectionString: url,
-    ssl: isInternal ? false : { rejectUnauthorized: false },
+    ssl: noSsl ? false : { rejectUnauthorized: false },
   });
 
 if (process.env.NODE_ENV !== "production") global.__pgPool = pool;
