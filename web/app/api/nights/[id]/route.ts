@@ -7,7 +7,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
   const { id } = await context.params;
   const { rows: nightRows } = await pool.query(
     `SELECT n.*, r.headline, r.sleep_score AS report_score, r.stage_pct, r.vitals,
-            r.wake_events, r.recommendations
+            r.wake_events, r.recommendations, r.sleep_health
      FROM nights n LEFT JOIN reports r ON r.night_id = n.id
      WHERE n.id = $1`, [id]);
   if (nightRows.length === 0) return NextResponse.json({ error: "not found" }, { status: 404 });
