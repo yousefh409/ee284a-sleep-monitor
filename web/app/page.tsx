@@ -165,12 +165,15 @@ function PageInner() {
   const sleepQuality = lastField(inNightRows, "sleep_quality");
   const turnover = maxField(inNightRows, "turnover_total");
   const apneaEvents = maxField(inNightRows, "apnea_events");
-  const lightSleepMin = maxField(inNightRows, "light_sleep_dur");
-  const deepSleepMin = maxField(inNightRows, "deep_sleep_dur");
+  // light/deep sleep are cumulative per-night counters (minutes) that plateau at the
+  // total by end of night. Use the last value, not max — the sensor emits occasional
+  // glitch spikes (e.g. 20563) that max() would latch onto.
+  const lightSleepMin = lastField(inNightRows, "light_sleep_dur");
+  const deepSleepMin = lastField(inNightRows, "deep_sleep_dur");
   // sensor `sleep_time_min` (uint16 sleepTime) accumulates across sessions and overflows
-  // the per-night value; compute total sleep time from the per-session uint8 fields instead.
+  // the per-night value; compute total sleep time from the per-session fields instead.
   const sleepTimeMin = (lightSleepMin ?? 0) + (deepSleepMin ?? 0) || null;
-  const wakeDurMin = maxField(inNightRows, "wake_dur");
+  const wakeDurMin = lastField(inNightRows, "wake_dur");
 
   // Real asleep/awake times: first/last per-minute row classified as sleep (deep=0 or light=1).
   // Falls back to the session in-bed start/end if no sleep rows exist.
