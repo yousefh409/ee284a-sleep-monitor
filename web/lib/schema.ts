@@ -96,4 +96,5 @@ CREATE TABLE IF NOT EXISTS reports (
 ALTER TABLE reports ADD COLUMN IF NOT EXISTS sleep_health TEXT;
 
 CREATE INDEX IF NOT EXISTS reports_night_idx ON reports (night_id);
+CREATE UNIQUE INDEX IF NOT EXISTS reports_night_unique_idx ON reports (night_id);
 `;
