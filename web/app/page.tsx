@@ -17,6 +17,7 @@ import { StatsRow } from "./components/StatsRow";
 import { StageBand } from "./components/StageBand";
 import { WakeEvents } from "./components/WakeEvents";
 import { Recommendations } from "./components/Recommendations";
+import { SleepHealth } from "./components/SleepHealth";
 import { EmptyState } from "./components/EmptyState";
 import { VitalsChart, EnvironmentChart, AudioChart, LightChart } from "./components/LiveCharts";
 import { TelemetryTable } from "./components/TelemetryTable";
@@ -39,6 +40,7 @@ type NightDetail = {
     vitals: Vitals | null;
     wake_events: WakeEvent[] | null;
     recommendations: string[] | null;
+    sleep_health: string | null;
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   telemetry: any[];
@@ -241,7 +243,10 @@ function PageInner() {
               nightStartedAt={detail?.night.started_at ?? null}
               nightEndedAt={detail?.night.ended_at ?? null}
             />
-            <Recommendations items={detail?.night.recommendations ?? null} />
+            <div className="space-y-8">
+              <Recommendations items={detail?.night.recommendations ?? null} />
+              <SleepHealth text={detail?.night.sleep_health ?? null} />
+            </div>
           </div>
         )}
 
