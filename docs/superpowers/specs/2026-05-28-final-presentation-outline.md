@@ -53,12 +53,19 @@
 - Name + tagline (e.g., "Contactless Sleep & Environment Monitor" + "Passive sleep & vitals — nothing to wear"). Details deferred.
 
 ### Slide 2 — Hook (hard-clinical stat trio)
-Three beats: common → dangerous → invisible.
-- **Common:** 42% of community-dwelling adults 65+ report difficulty initiating/maintaining sleep.
-- **Dangerous:** each 1% yearly decrease in deep sleep is associated with a ~27% increase in dementia risk.
-- **Invisible:** ~1 in 4 older primary-care patients screen positive for chronic insomnia, yet only 38% have it in their medical record.
+Three beats: common → dangerous → invisible. All three verified against primary/strong sources (2026-05-28).
+
+- **Common — 42%:** In a study of >9,000 community-dwelling adults aged 65+, 42% reported difficulty initiating and maintaining sleep.
+  - Source: Foley DJ et al., "Sleep complaints among elderly persons: an epidemiologic study of three communities," *Sleep* 1995;18(6):425–432. Landmark/foundational figure.
+  - Links: https://academic.oup.com/sleep/article/18/6/425/2749669 · https://pubmed.ncbi.nlm.nih.gov/7481413/
+- **Dangerous — 27%:** "Each percentage decrease in deep sleep each year was associated with a 27% increase in the risk of dementia."
+  - Source: JAMA Neurology (2023) study, Framingham Heart Study cohort (Himali et al.). Accessible explainer: Medical News Today.
+  - Link: https://www.medicalnewstoday.com/articles/not-getting-enough-deep-sleep-may-increase-dementia-risk
+- **Invisible — 38%:** "One-quarter screened positive for chronic insomnia (N = 117); yet, only 44 (38%) had an EHR-documented insomnia diagnosis."
+  - Source: "Novel Approaches for Early Detection of Chronic Insomnia Among Older Primary Care Patients," PMC.
+  - Link: https://pmc.ncbi.nlm.nih.gov/articles/PMC12761964/
 - Takeaway line: sleep problems are common, serious, and largely unmeasured — that gap is what a passive monitor fills.
-- Sources to cite: NCOA sleep statistics; MedicalNewsToday/Mayo deep-sleep–dementia; PMC primary-care insomnia under-documentation. (Verify exact wording/numbers against primary sources before final.)
+- Note: the 42% figure is from 1995 (canonical but old); if a more recent prevalence number is preferred, AAFP gives "up to 40% of older adults have insomnia" and "45% in persons 65–79" (https://www.aafp.org/pubs/afp/issues/2013/0215/p280.html).
 
 ### Slide 3 — Problem (comparison table)
 - Rows: consumer/medical wearable · clinical sleep study (PSG) · camera/audio monitor · **this system**.
