@@ -93,5 +93,7 @@ CREATE TABLE IF NOT EXISTS reports (
   generated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+ALTER TABLE reports ADD COLUMN IF NOT EXISTS sleep_health TEXT;
+
 CREATE INDEX IF NOT EXISTS reports_night_idx ON reports (night_id);
 `;
