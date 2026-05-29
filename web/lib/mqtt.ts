@@ -1,6 +1,6 @@
 import mqtt from "mqtt";
 import { pool } from "./db";
-import { generateSleepReport } from "./claude";
+import { buildAndStoreReport } from "./sleepReport";
 import type { Telemetry } from "./types";
 
 type SessionState = {
@@ -64,46 +64,8 @@ async function closeSession(dev: string, endedAt: Date) {
   );
   const nightId = nightRows[0].id;
 
-  const { rows } = await pool.query(
-    `SELECT date_trunc('minute', ts) AS minute,
-            avg(sleep_state)::int AS state,
-            avg(breathing)::int AS breathing,
-            avg(heart_rate)::int AS hr,
-            avg(temp_c) AS temp_c,
-            avg(humidity) AS humidity,
-            avg(gas_ohm)::int AS gas,
-            avg(db_spl) AS db_spl,
-            avg(light_raw)::int AS light
-     FROM telemetry WHERE device = $1 AND ts BETWEEN $2 AND $3
-     GROUP BY minute ORDER BY minute`,
-    [dev, startedAt, endedAt]
-  );
-  // Format minute as local America/Los_Angeles "YYYY-MM-DD HH:MM" (24h) so the LLM emits
-  // wake-event timestamps in the user's wall-clock time, not UTC.
-  const fmtMinute = (d: Date) => {
-    const p = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "America/Los_Angeles",
-      year: "numeric", month: "2-digit", day: "2-digit",
-      hour: "2-digit", minute: "2-digit", hour12: false,
-    }).formatToParts(d);
-    const get = (t: string) => p.find((x) => x.type === t)!.value;
-    return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}`;
-  };
-  const header = "minute,state,breathing,hr,temp_c,humidity,gas_ohm,db_spl,light";
-  const csv = [header, ...rows.map((r) =>
-    `${fmtMinute(r.minute as Date)},${r.state},${r.breathing},${r.hr},${Number(r.temp_c).toFixed(1)},${Number(r.humidity).toFixed(1)},${r.gas},${Number(r.db_spl).toFixed(1)},${r.light}`
-  )].join("\n");
-
   try {
-    const report = await generateSleepReport(csv);
-    await pool.query(
-      `INSERT INTO reports (night_id, headline, sleep_score, stage_pct, vitals, wake_events, recommendations)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [nightId, report.headline, report.sleep_score, report.stage_pct, report.vitals,
-       JSON.stringify(report.wake_events), JSON.stringify(report.recommendations)]
-    );
-    await pool.query(`UPDATE nights SET sleep_score = $1 WHERE id = $2`,
-      [report.sleep_score, nightId]);
+    await buildAndStoreReport(dev, nightId, startedAt, endedAt);
   } catch (err) {
     console.error("[mqtt] LLM report failed for night", nightId, err);
   }
