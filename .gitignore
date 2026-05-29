@@ -19,3 +19,6 @@ firmware/.pio/
 firmware/include/config.h
 node_modules/
 out/
+
+# Local diagram render preview
+presentation/preview.png

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>System Design Diagrams — Slides 5 & 6</title>
+<style>
+  /* ---- Brand: bookish × mineral ---- */
+  :root {
+    --ground: #F5F1E8;
+    --ground-raised: #FFFFFF;
+    --ink: #1A1815;
+    --ink-muted: #5C574F;
+    --rule: #E5DFD2;
+    --copper: #8B6F47;
+    --copper-soft: rgba(139, 111, 71, 0.15);
+    --stage-out: #EBE5D6;
+    --stage-awake: #C9C0AC;
+    --stage-light: #7A7468;
+    --heat-1: rgba(139, 111, 71, 0.12);
+    --heat-2: rgba(139, 111, 71, 0.28);
+    --heat-3: rgba(139, 111, 71, 0.46);
+    --heat-4: rgba(139, 111, 71, 0.68);
+    --heat-5: rgba(139, 111, 71, 0.92);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #E4DCC9;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    padding: 40px;
+  }
+
+  /* ---- 16:9 slide frame ---- */
+  .slide {
+    width: 1280px;
+    height: 720px;
+    background: var(--ground);
+    position: relative;
+    overflow: hidden;
+    padding: 52px 72px 40px;
+    box-shadow: 0 10px 40px rgba(26, 24, 21, 0.18);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .kicker {
+    font-size: 14px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--copper); font-weight: 600;
+  }
+  .headline {
+    font-size: 40px; line-height: 1.05; font-weight: 700;
+    letter-spacing: -0.01em; margin-top: 8px;
+  }
+  .subhead { font-size: 19px; color: var(--ink-muted); margin-top: 8px; font-weight: 400; }
+
+  /* ---- generic tree scaffolding ---- */
+  .tree { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 18px; }
+
+  .node-box {
+    background: var(--ground-raised); border: 1px solid var(--rule);
+    border-radius: 13px; text-align: center;
+  }
+
+  /* vertical connector with optional centered label */
+  .stem { position: relative; width: 100%; }
+  .stem .line { width: 2px; background: var(--copper); margin: 0 auto; height: 100%; }
+  .stem .tag {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    background: var(--ground); padding: 2px 9px; font-size: 11px; color: var(--ink-muted);
+    white-space: nowrap; letter-spacing: 0.05em;
+  }
+
+  /* fan-out connector: stem -> horizontal bus -> N drops */
+  .fan { position: relative; width: 100%; }
+  .fan .bus { position: absolute; top: 0; height: 2px; background: var(--copper); }
+  .fan .drops { position: absolute; top: 0; left: 0; right: 0; height: 100%; display: grid; }
+  .fan .drops .drop { width: 2px; height: 100%; background: var(--copper); margin: 0 auto; }
+
+  /* ================= SLIDE 5 : triage tree ================= */
+  #slide5 .root {
+    width: 460px; padding: 16px 26px;
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  #slide5 .root .t { font-size: 19px; font-weight: 700; }
+  #slide5 .root .n { font-size: 13px; color: var(--ink-muted); letter-spacing: 0.04em; }
+
+  #slide5 .stem.s-root { height: 26px; }
+  #slide5 .fan.f-root { height: 30px; }
+  #slide5 .fan.f-root .bus { left: 10%; right: 10%; }   /* 5 cols: half-col = 10% */
+  #slide5 .fan.f-root .drops { grid-template-columns: repeat(5, 1fr); }
+
+  #slide5 .leaves {
+    width: 100%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px;
+  }
+  .room-card {
+    background: var(--ground-raised); border: 1px solid var(--rule);
+    border-radius: 12px; overflow: hidden; display: flex; flex-direction: column;
+  }
+  .room-card .strip { height: 6px; }
+  .room-card .body { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 10px; height: 100%; }
+  .room-card .room { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+  .room-card .reason { font-size: 13.5px; color: var(--ink-muted); line-height: 1.35; flex: 1; }
+  .pill {
+    align-self: flex-start; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    font-weight: 700; padding: 4px 11px; border-radius: 999px;
+  }
+  .pill.alert { background: var(--heat-5); color: #fff; }
+  .pill.watch { background: var(--heat-3); color: var(--ink); }
+  .pill.check { background: var(--heat-2); color: var(--ink); }
+  .pill.ok    { background: var(--stage-out); color: var(--ink-muted); }
+  .strip.alert { background: var(--heat-5); }
+  .strip.watch { background: var(--heat-3); }
+  .strip.check { background: var(--heat-2); }
+  .strip.ok    { background: var(--stage-awake); }
+
+  #slide5 .caption {
+    text-align: center; font-size: 15px; color: var(--ink-muted); margin-top: 22px;
+  }
+  #slide5 .caption b { color: var(--ink); font-weight: 600; }
+
+  /* ================= SLIDE 6 : architecture tree ================= */
+  #slide6 .tree { justify-content: flex-start; margin-top: 12px; }
+  #slide6 .spine-box { width: 430px; }
+
+  .lvl-title { font-size: 18px; font-weight: 700; }
+  .lvl-desc { font-size: 13px; color: var(--ink-muted); margin-top: 3px; line-height: 1.4; }
+
+  #slide6 .dashboard { padding: 11px 24px; }
+  #slide6 .cloud { padding: 11px 18px; }
+  #slide6 .cloud .row { display: flex; gap: 12px; margin-top: 8px; }
+  #slide6 .cloud .sub {
+    flex: 1; background: var(--copper-soft); border: 1px solid var(--rule);
+    border-radius: 9px; padding: 9px 12px; text-align: left;
+  }
+  #slide6 .cloud .sub .st { font-size: 14px; font-weight: 700; }
+  #slide6 .cloud .sub .sd { font-size: 11.5px; color: var(--ink-muted); margin-top: 2px; line-height: 1.3; }
+  #slide6 .broker { padding: 10px 24px; }
+
+  /* node block with x N stack */
+  #slide6 .nodewrap { position: relative; width: 430px; }
+  #slide6 .nodewrap .ghost {
+    position: absolute; inset: 0; background: var(--ground-raised);
+    border: 1px solid var(--rule); border-radius: 13px;
+  }
+  #slide6 .nodewrap .ghost.g1 { transform: translate(8px, 8px); opacity: 0.5; }
+  #slide6 .nodewrap .ghost.g2 { transform: translate(16px, 16px); opacity: 0.28; }
+  #slide6 .nodewrap .node-box { position: relative; padding: 10px 24px; }
+  #slide6 .xn-badge {
+    position: absolute; top: -11px; right: -11px; z-index: 3;
+    background: var(--copper); color: #fff; font-weight: 700; font-size: 12.5px;
+    padding: 5px 12px; border-radius: 999px; letter-spacing: 0.04em;
+  }
+  #slide6 .node-box .sub { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
+
+  #slide6 .stem.s1 { height: 17px; }
+  #slide6 .fan.f-sensors { height: 20px; width: 820px; }
+  #slide6 .fan.f-sensors .bus { left: 12.5%; right: 12.5%; }  /* 4 cols */
+  #slide6 .fan.f-sensors .drops { grid-template-columns: repeat(4, 1fr); }
+
+  #slide6 .leaves {
+    width: 820px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  }
+  .sensor-leaf {
+    background: var(--ground-raised); border: 1px solid var(--rule); border-radius: 11px;
+    padding: 11px 10px; text-align: center; display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+  }
+  .sensor-leaf .nm { font-size: 14px; font-weight: 700; }
+  .sensor-leaf .ms { font-size: 11.5px; color: var(--ink-muted); line-height: 1.25; }
+
+  .footnote {
+    width: 100%; font-size: 13px; color: var(--ink-muted);
+    border-top: 1px solid var(--rule); padding-top: 10px; margin-top: 14px;
+  }
+  .footnote b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+  <!-- ===================== SLIDE 5 : triage tree ===================== -->
+  <section class="slide" id="slide5">
+    <div class="kicker">The network effect</div>
+    <h1 class="headline">Passive triage at scale</h1>
+    <p class="subhead">One station, every room — prioritized by who needs attention tonight.</p>
+
+    <div class="tree">
+      <!-- root -->
+      <div class="node-box root">
+        <span class="t">Nurse Station — Tonight</span>
+        <span class="n">24 rooms monitored</span>
+      </div>
+
+      <!-- root stem -->
+      <div class="stem s-root"><div class="line"></div></div>
+      <!-- fan to 5 leaves -->
+      <div class="fan f-root">
+        <div class="bus"></div>
+        <div class="drops"><div class="drop"></div><div class="drop"></div><div class="drop"></div><div class="drop"></div><div class="drop"></div></div>
+      </div>
+
+      <!-- leaves -->
+      <div class="leaves">
+        <div class="room-card">
+          <div class="strip alert"></div>
+          <div class="body">
+            <div class="room">214</div>
+            <span class="pill alert">Alert</span>
+            <div class="reason">Breathing irregular · heart rate elevated</div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="strip watch"></div>
+          <div class="body">
+            <div class="room">207</div>
+            <span class="pill watch">Watch</span>
+            <div class="reason">3 wake events · sleep score down 18%</div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="strip check"></div>
+          <div class="body">
+            <div class="room">122</div>
+            <span class="pill check">Check</span>
+            <div class="reason">No presence detected since 02:10</div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="strip ok"></div>
+          <div class="body">
+            <div class="room">318</div>
+            <span class="pill ok">OK</span>
+            <div class="reason">Resting normally · steady breathing</div>
+          </div>
+        </div>
+        <div class="room-card">
+          <div class="strip ok"></div>
+          <div class="body">
+            <div class="room">+20</div>
+            <span class="pill ok">OK</span>
+            <div class="reason">Remaining rooms resting normally</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="caption">No single node could do this — the network reveals <b>who</b> needs attention, ranked.</p>
+    </div>
+  </section>
+
+  <!-- ===================== SLIDE 6 : architecture tree ===================== -->
+  <section class="slide" id="slide6">
+    <div class="kicker">System architecture</div>
+    <h1 class="headline">From bedside to nurse station</h1>
+    <p class="subhead">Per-minute telemetry flows from every room node up to one caregiver dashboard.</p>
+
+    <div class="tree">
+      <!-- root: dashboard -->
+      <div class="node-box spine-box dashboard">
+        <div class="lvl-title">Caregiver dashboard</div>
+        <div class="lvl-desc">Nurse-station triage: overnight timelines, sleep scores &amp; prioritized alerts across the wing</div>
+      </div>
+      <div class="stem s1"><div class="line"></div><span class="tag">alerts + timelines</span></div>
+
+      <!-- cloud -->
+      <div class="node-box spine-box cloud">
+        <div class="lvl-title">Cloud processing</div>
+        <div class="row">
+          <div class="sub"><div class="st">Correlation engine</div><div class="sd">Tags each wake event with its likely environmental cause</div></div>
+          <div class="sub"><div class="st">Time-series storage</div><div class="sd">Per-resident history &amp; baselines</div></div>
+        </div>
+      </div>
+      <div class="stem s1"><div class="line"></div><span class="tag">ingest</span></div>
+
+      <!-- broker -->
+      <div class="node-box spine-box broker">
+        <div class="lvl-title">MQTT broker</div>
+        <div class="lvl-desc">Receives per-minute JSON published by every node</div>
+      </div>
+      <div class="stem s1"><div class="line"></div><span class="tag">Wi-Fi · MQTT</span></div>
+
+      <!-- node x N -->
+      <div class="nodewrap">
+        <div class="ghost g2"></div>
+        <div class="ghost g1"></div>
+        <div class="xn-badge">× N rooms</div>
+        <div class="node-box">
+          <div class="lvl-title">Sensor node</div>
+          <div class="sub">ESP32 Feather V2 · USB-C powered</div>
+        </div>
+      </div>
+
+      <!-- fan to sensors -->
+      <div class="stem s1"><div class="line"></div></div>
+      <div class="fan f-sensors">
+        <div class="bus"></div>
+        <div class="drops"><div class="drop"></div><div class="drop"></div><div class="drop"></div><div class="drop"></div></div>
+      </div>
+
+      <!-- sensor leaves -->
+      <div class="leaves">
+        <div class="sensor-leaf">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#8B6F47" stroke-width="1.6"><path d="M3 10a7 7 0 0 1 7-7"/><path d="M5.5 10a4.5 4.5 0 0 1 4.5-4.5"/><circle cx="10" cy="10" r="1.6" fill="#8B6F47" stroke="none"/></svg>
+          <div class="nm">mmWave radar</div>
+          <div class="ms">sleep · breathing · heart rate</div>
+        </div>
+        <div class="sensor-leaf">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#8B6F47" stroke-width="1.6"><path d="M8 3.5a2 2 0 0 1 4 0v7.2a3.2 3.2 0 1 1-4 0z"/></svg>
+          <div class="nm">BME680</div>
+          <div class="ms">temp · humidity · air</div>
+        </div>
+        <div class="sensor-leaf">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#8B6F47" stroke-width="1.6"><rect x="7.5" y="2.5" width="5" height="9" rx="2.5"/><path d="M5 9.5a5 5 0 0 0 10 0M10 14.5v3"/></svg>
+          <div class="nm">Microphone</div>
+          <div class="ms">noise level (dB)</div>
+        </div>
+        <div class="sensor-leaf">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#8B6F47" stroke-width="1.6"><circle cx="10" cy="10" r="3.2"/><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4"/></svg>
+          <div class="nm">Photoresistor</div>
+          <div class="ms">ambient light</div>
+        </div>
+      </div>
+
+      <div class="footnote">Hardware proof-of-concept built: <b>one sensor node → MQTT → correlation engine → dashboard</b>. The tree above is the same pipeline, scaled to N rooms.</div>
+    </div>
+  </section>
+
+</body>
+</html>
