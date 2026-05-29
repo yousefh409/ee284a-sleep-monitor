@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Node Block Diagram — Slide 7</title>
+<style>
+  :root {
+    --ground: #F5F1E8;
+    --ground-raised: #FFFFFF;
+    --ink: #1A1815;
+    --ink-muted: #5C574F;
+    --rule: #E5DFD2;
+    --copper: #8B6F47;
+    --copper-soft: rgba(139, 111, 71, 0.15);
+    --stage-out: #EBE5D6;
+    --stage-awake: #C9C0AC;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #E4DCC9;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    color: var(--ink);
+    display: flex; justify-content: center; padding: 40px;
+  }
+  .slide {
+    width: 1280px; height: 720px; background: var(--ground);
+    position: relative; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(26, 24, 21, 0.18);
+  }
+
+  /* ---- blocks ---- */
+  .block {
+    position: absolute; background: var(--ground-raised);
+    border: 1px solid var(--rule); border-radius: 13px;
+    padding: 13px 16px;
+  }
+  .block .t { font-size: 17px; font-weight: 700; }
+  .block .sub { font-size: 11.5px; color: var(--copper); font-weight: 600; letter-spacing: 0.04em; margin-top: 1px; }
+  .pins { margin-top: 9px; display: flex; flex-direction: column; gap: 4px; }
+  .pin {
+    font-size: 12.5px; color: var(--ink); display: flex; gap: 7px; align-items: baseline;
+    font-variant-numeric: tabular-nums;
+  }
+  .pin .p { font-weight: 700; min-width: 42px; color: var(--ink); }
+  .pin .arr { color: var(--copper); font-weight: 700; }
+  .pin .d { color: var(--ink-muted); }
+
+  /* hub */
+  .hub {
+    border: 2px solid var(--copper); background: var(--ground-raised);
+    text-align: center;
+  }
+  .hub .t { font-size: 20px; }
+  .hub .mcu-pins {
+    margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;
+  }
+  .hub .mcu-pins span {
+    font-size: 11.5px; font-weight: 700; color: var(--copper);
+    background: var(--copper-soft); padding: 3px 8px; border-radius: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .hub .pwr { font-size: 11.5px; color: var(--ink-muted); margin-top: 9px; }
+  .hub .pwr b { color: var(--ink); }
+
+  /* ---- connectors (orthogonal spokes) ---- */
+  .conn { position: absolute; background: var(--copper); }
+  .conn.v { width: 2px; }
+  .conn.h { height: 2px; }
+  .dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--copper); transform: translate(-50%, -50%); }
+
+  .conn-label {
+    position: absolute; transform: translate(-50%, -50%);
+    background: var(--ground); padding: 4px 10px; text-align: center;
+    border: 1px solid var(--rule); border-radius: 8px;
+  }
+  .conn-label .i { font-size: 13px; font-weight: 700; }
+  .conn-label .s { font-size: 11px; color: var(--ink-muted); margin-top: 1px; }
+
+  /* ---- legend ---- */
+  .legend {
+    position: absolute; left: 60px; top: 60px; width: 250px;
+    background: var(--ground-raised); border: 1px solid var(--rule); border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .legend .lt { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-muted); font-weight: 700; }
+  .legend .row { display: flex; align-items: center; gap: 9px; margin-top: 9px; font-size: 12.5px; color: var(--ink); }
+  .legend .swatch { width: 22px; height: 2px; background: var(--copper); flex-shrink: 0; }
+  .legend .chip { font-size: 11px; font-weight: 700; color: var(--copper); background: var(--copper-soft); padding: 2px 7px; border-radius: 5px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+  <section class="slide">
+
+    <!-- ================= BLOCKS ================= -->
+
+    <!-- legend (top-left) -->
+    <div class="legend">
+      <div class="lt">Power</div>
+      <div class="row"><span class="chip">5V</span> C1001 radar via Feather USB</div>
+      <div class="row"><span class="chip">3V3</span> breadboard + rail</div>
+      <div class="row"><span class="chip">GND</span> breadboard − rail</div>
+    </div>
+
+    <!-- radar (top-center) -->
+    <div class="block" style="left:520px; top:60px; width:250px;">
+      <div class="t">C1001 mmWave radar</div>
+      <div class="sub">presence · sleep · breathing · heart rate</div>
+      <div class="pins">
+        <div class="pin"><span class="p">VIN</span><span class="arr">→</span><span class="d">Feather USB (5V)</span></div>
+        <div class="pin"><span class="p">TX</span><span class="arr">→</span><span class="d">Feather RX</span></div>
+        <div class="pin"><span class="p">RX</span><span class="arr">→</span><span class="d">Feather TX</span></div>
+        <div class="pin"><span class="p">GND</span><span class="arr">→</span><span class="d">− rail</span></div>
+      </div>
+    </div>
+
+    <!-- BME680 (mid-left) -->
+    <div class="block" style="left:60px; top:300px; width:250px;">
+      <div class="t">BME680</div>
+      <div class="sub">temp · humidity · pressure · gas</div>
+      <div class="pins">
+        <div class="pin"><span class="p">SDI</span><span class="arr">→</span><span class="d">Feather SDA</span></div>
+        <div class="pin"><span class="p">SCK</span><span class="arr">→</span><span class="d">Feather SCL</span></div>
+        <div class="pin"><span class="p">VIN</span><span class="arr">→</span><span class="d">+ rail (3V3)</span></div>
+        <div class="pin"><span class="p">GND</span><span class="arr">→</span><span class="d">− rail</span></div>
+      </div>
+    </div>
+
+    <!-- hub: Feather (center) -->
+    <div class="block hub" style="left:500px; top:288px; width:280px;">
+      <div class="t">ESP32 Feather V2</div>
+      <div class="sub">Wi-Fi MCU</div>
+      <div class="mcu-pins">
+        <span>USB</span><span>TX</span><span>RX</span><span>SDA</span><span>SCL</span><span>A2</span><span>A3</span><span>3V3</span><span>GND</span>
+      </div>
+      <div class="pwr">Power in: <b>USB-C (5V)</b></div>
+    </div>
+
+    <!-- photoresistor (mid-right) -->
+    <div class="block" style="left:970px; top:300px; width:250px;">
+      <div class="t">Photoresistor + 3 kΩ</div>
+      <div class="sub">ambient light · voltage divider</div>
+      <div class="pins">
+        <div class="pin"><span class="p">A leg</span><span class="arr">→</span><span class="d">+ rail (3V3)</span></div>
+        <div class="pin"><span class="p">junc</span><span class="arr">→</span><span class="d">Feather A3</span></div>
+        <div class="pin"><span class="p">3kΩ</span><span class="arr">→</span><span class="d">− rail (GND)</span></div>
+      </div>
+    </div>
+
+    <!-- mic (bottom-center) -->
+    <div class="block" style="left:520px; top:545px; width:250px;">
+      <div class="t">SPW2430 microphone</div>
+      <div class="sub">ambient noise (dB SPL)</div>
+      <div class="pins">
+        <div class="pin"><span class="p">DC</span><span class="arr">→</span><span class="d">Feather A2</span></div>
+        <div class="pin"><span class="p">Vin</span><span class="arr">→</span><span class="d">+ rail (3V3)</span></div>
+        <div class="pin"><span class="p">GND</span><span class="arr">→</span><span class="d">− rail</span></div>
+      </div>
+    </div>
+
+    <!-- ================= CONNECTORS ================= -->
+    <!-- top spoke: radar <-> hub  (radar bottom ~y=235, hub top=288) -->
+    <div class="conn v" style="left:639px; top:235px; height:53px;"></div>
+    <span class="dot" style="left:640px; top:235px;"></span>
+    <span class="dot" style="left:640px; top:288px;"></span>
+    <div class="conn-label" style="left:640px; top:262px;">
+      <div class="i">UART · 115200</div>
+      <div class="s">TX ↔ RX · 5V</div>
+    </div>
+
+    <!-- left spoke: BME <-> hub (BME right=310, hub left=500, y=360) -->
+    <div class="conn h" style="left:310px; top:360px; width:190px;"></div>
+    <span class="dot" style="left:310px; top:360px;"></span>
+    <span class="dot" style="left:500px; top:360px;"></span>
+    <div class="conn-label" style="left:405px; top:360px;">
+      <div class="i">I²C · 0x77</div>
+      <div class="s">SDA · SCL</div>
+    </div>
+
+    <!-- right spoke: hub <-> photoresistor (hub right=780, photo left=970, y=360) -->
+    <div class="conn h" style="left:780px; top:360px; width:190px;"></div>
+    <span class="dot" style="left:780px; top:360px;"></span>
+    <span class="dot" style="left:970px; top:360px;"></span>
+    <div class="conn-label" style="left:875px; top:360px;">
+      <div class="i">Analog · A3</div>
+      <div class="s">ADC1 · divider</div>
+    </div>
+
+    <!-- bottom spoke: hub <-> mic (hub bottom ~y=420, mic top=545) -->
+    <div class="conn v" style="left:639px; top:432px; height:113px;"></div>
+    <span class="dot" style="left:640px; top:432px;"></span>
+    <span class="dot" style="left:640px; top:545px;"></span>
+    <div class="conn-label" style="left:640px; top:488px;">
+      <div class="i">Analog · A2</div>
+      <div class="s">ADC1</div>
+    </div>
+
+  </section>
+</body>
+</html>
