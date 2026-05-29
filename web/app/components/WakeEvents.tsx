@@ -1,4 +1,9 @@
-type WakeEvent = { ts: string; likely_cause: string };
+type WakeEvent = {
+  ts: string;
+  likely_cause: string;
+  triggers?: string[];
+  confidence?: "low" | "medium" | "high";
+};
 
 type Props = {
   events: WakeEvent[] | null;
@@ -77,11 +82,32 @@ export function WakeEvents({ events, nightStartedAt, nightEndedAt }: Props) {
       <h2 className="text-[11px] font-medium uppercase tracking-[0.08em] text-ink-muted">Wake events</h2>
       <ul className="space-y-1.5 text-[15px] text-ink">
         {events.map((e, i) => (
-          <li key={i} className="flex gap-4">
-            <span className="font-mono text-[13px] text-ink-muted">
-              {fmtWakeTs(e.ts, nightStartedAt, nightEndedAt)}
-            </span>
-            <span>{e.likely_cause}</span>
+          <li key={i} className="space-y-1">
+            <div className="flex items-baseline gap-4">
+              <span className="font-mono text-[13px] text-ink-muted">
+                {fmtWakeTs(e.ts, nightStartedAt, nightEndedAt)}
+              </span>
+              <span className="flex-1">{e.likely_cause}</span>
+              {e.confidence && (
+                <span
+                  className="rounded-full bg-copper-soft px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-copper"
+                >
+                  {e.confidence === "medium" ? "med" : e.confidence}
+                </span>
+              )}
+            </div>
+            {e.triggers && e.triggers.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pl-[5.5rem]">
+                {e.triggers.map((t, j) => (
+                  <span
+                    key={j}
+                    className="rounded border border-rule px-1.5 py-0.5 font-mono text-[11px] text-ink-muted"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
           </li>
         ))}
       </ul>
